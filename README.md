@@ -103,7 +103,7 @@ Struct measures discipline through:
 * #A1BC98 — Primary accent
 * #778873 — Sage dark mode base
 
-### Dark Mode
+### Dark Mode (Has not been implemented yet and might not be)
 
 * Uses a **soft sage theme**
 * Avoids harsh black backgrounds
