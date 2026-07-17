@@ -26,7 +26,7 @@ export default function Step1SignupForm({ data, onChange }: Step1Props) {
         </h2>
         <p className="text-sm text-[#778873] mt-1">
           Let's get you set up in a few steps.
-        </p>
+        </p>  
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

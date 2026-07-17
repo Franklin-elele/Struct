@@ -13,6 +13,9 @@ import { ReminderConfig } from "@/app/components/Inputs/ReminderSettings";
 import { MoveLeft, MoveRight } from 'lucide-react';
 import Loader from "@/app/components/Loader";
 import { useRouter } from "next/navigation";
+import { signUp } from "@/lib/services/auth.service";
+import { useNavigate } from "@/hooks/useNavigate";
+import toast from "react-hot-toast";
 
 
 // ── Shared onboarding state shape ──
@@ -122,14 +125,37 @@ export default function OnboardingContainer() {
     return true; // step 3 reminders are optional
   };
 
-  const handleNext = () => {
-    if (step < totalSteps - 1) setStep((s) => s + 1);
-    else setDone(true);
+  const handleNext = async () => {
+    if (step < totalSteps - 1) {
+        setStep((s) => s + 1);
+        return; // ← stop here
+    }
+
+    try {
+      await toast.promise(
+          signUp({
+            firstname: state.signup.firstName,
+            lastname: state.signup.lastName,
+            email: state.signup.email,
+            password: state.signup.password,
+          }),
+        {
+          loading: "Setting up your account...",
+          success: "You're all set!",
+          error: (err) => err?.response?.data?.message || "Something went wrong",
+        }
+      );
+
+      setDone(true)
+    } catch {
+    }
   };
 
   const handleBack = () => {
     if (step > 0) setStep((s) => s - 1);
   };
+
+
 
   return (
     <div className="min-h-screen bg-[#F1F3E0] flex items-center justify-center p-4">

@@ -31,7 +31,7 @@ export default function HomePage() {
         {/* ── Greeting ── */}
         <div>
           <h2 className="text-xl font-bold text-[#2d3328] tracking-tight">
-            Good morning 👋
+            Hello👋
           </h2>
           <p className="text-sm text-[#778873] mt-0.5">
             Here's what you have to execute today.
@@ -57,8 +57,8 @@ export default function HomePage() {
               Your Structures
             </p>
             <div className={`grid gap-4 ${mockStructures.length === 1
-                ? "grid-cols-1"
-                : "grid-cols-1 sm:grid-cols-2"
+              ? "grid-cols-1"
+              : "grid-cols-1 sm:grid-cols-2"
               }`}>
               {mockStructures.map((structure) => (
                 <StructureCard
@@ -83,7 +83,10 @@ export default function HomePage() {
         {/* ── Tasks ── */}
         {/* TaskSection manages its own state internally */}
         <TaskSection
-          initialTasks={mockTasks}
+          initialTasks={mockTasks.map((task) => ({
+            ...task,
+            structureTitle: mockStructures.find((s) => s.id === task.structureId)?.title || "",
+          }))}
           onViewAll={() => router.push("/dashboard/tasks")}
         />
 

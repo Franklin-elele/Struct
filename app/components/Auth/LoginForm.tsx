@@ -3,6 +3,10 @@
 
 import { Mail, Lock, ArrowLeft } from "lucide-react";
 import InputField from "../Inputs/index";
+import { login } from "@/lib/services/auth.service";
+import { useNavigate } from "@/hooks/useNavigate";
+import toast from "react-hot-toast";
+
 
 type LoginData = {
   email: string;
@@ -12,21 +16,35 @@ type LoginData = {
 type LoginFormProps = {
   data: LoginData;
   onChange: (updated: LoginData) => void;
-  onSubmit: () => void;
   onBack: () => void;
 };
 
 export default function LoginForm({
   data,
   onChange,
-  onSubmit,
   onBack,
 }: LoginFormProps) {
+  const { navigate } = useNavigate();
+  const { email, password } = data;
+
   const set = (field: keyof LoginData) => (val: string) =>
     onChange({ ...data, [field]: val });
 
   // basic check — both fields must have content to enable the button
   const canSubmit = data.email.length > 0 && data.password.length > 0;
+
+  const handleSubmit = async () => {
+    try { 
+      await toast.promise(login({email, password}), {
+        loading: "Logging in...",
+        success: "Logged in successfully!",
+        error: (err) => `Login failed: ${err.response?.data?.message || "Login failed"}`
+      });
+      navigate("/dashboard/home");
+    } catch {
+      // already handled by toast.promise
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -86,7 +104,7 @@ export default function LoginForm({
       {/* Submit */}
       <button
         type="button"
-        onClick={onSubmit}
+        onClick={handleSubmit}
         disabled={!canSubmit}
         className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-150
           ${canSubmit

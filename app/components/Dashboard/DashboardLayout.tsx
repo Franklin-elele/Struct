@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* ── Main area ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
 
-        <Header />
+        <Header/>
 
         {/* Page content — extra bottom padding on mobile so content
             doesn't hide behind the fixed BottomNav (h-16 = 64px) */}

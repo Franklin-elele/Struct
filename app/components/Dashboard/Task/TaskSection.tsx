@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import TaskItem from "./TaskItem";
-import { Task } from "../../config/mockData";
+import { Task } from "../../config/tasksData";
 
 type TaskSectionProps = {
   initialTasks: Task[];
@@ -64,7 +64,9 @@ export default function TaskSection({ initialTasks, onViewAll }: TaskSectionProp
       {/* ── Task list ── */}
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} onToggle={toggleTask} />
+          <TaskItem key={task.id} task={task} onToggle={toggleTask} onEdit={function (task: Task): void {
+            throw new Error("Function not implemented.");
+          } } />
         ))}
 
         {tasks.length === 0 && (

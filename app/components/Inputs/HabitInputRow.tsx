@@ -52,37 +52,38 @@ export default function HabitInputRow({
       </div>
 
       {/* Time toggle row */}
-      <div className="flex items-center justify-between px-1">
+      <div className="flex items-center justify-between gap-2 px-1">
+
+        {/* Toggle */}
         <button
           type="button"
           onClick={() => onUpdate({ ...habit, timeEnabled: !habit.timeEnabled })}
-          className="flex items-center gap-2 text-xs text-[#778873] hover:text-[#2d3328] transition-colors"
+          className="flex items-center gap-2 text-[11.5px] text-[#778873]
+      hover:text-[#2d3328] transition-colors flex-shrink-0"
         >
-          {/* Toggle pill */}
-          <span
-            className={`w-8 h-4 rounded-full flex items-center px-0.5 transition-colors duration-200 ${
-              habit.timeEnabled ? "bg-[#A1BC98]" : "bg-[#D2DCB6]"
-            }`}
+          <span className={`w-8 h-4 rounded-full flex items-center px-0.5
+      transition-colors duration-200 flex-shrink-0
+      ${habit.timeEnabled ? "bg-[#A1BC98]" : "bg-[#D2DCB6]"}`}
           >
-            <span
-              className={`w-3 h-3 rounded-full bg-white shadow-sm transition-transform duration-200 ${
-                habit.timeEnabled ? "translate-x-4" : "translate-x-0"
-              }`}
+            <span className={`w-3 h-3 rounded-full bg-white shadow-sm
+        transition-transform duration-200
+        ${habit.timeEnabled ? "translate-x-4" : "translate-x-0"}`}
             />
           </span>
           Set time target
         </button>
 
-        {/* Time input — only visible when toggled on */}
+        {/* Time input */}
         {habit.timeEnabled && (
           <input
-            type="time"
+            type="text"
             value={habit.timeTarget}
             onChange={(e) => onUpdate({ ...habit, timeTarget: e.target.value })}
-            className="px-2 py-1 rounded-lg border border-[#D2DCB6] bg-[#F1F3E0]
-              text-xs text-[#2d3328]
-              focus:outline-none focus:ring-2 focus:ring-[#A1BC98] focus:border-transparent
-              transition-all duration-150"
+            placeholder="e.g. 1 hr"
+            className="w-28 px-3 py-1.5 rounded-lg border border-[#D2DCB6]
+        bg-[#F1F3E0] text-xs text-[#657362]
+        focus:outline-none focus:ring-2 focus:ring-[#A1BC98]
+        focus:border-transparent transition-all duration-150"
           />
         )}
       </div>

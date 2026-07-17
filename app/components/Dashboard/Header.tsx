@@ -14,7 +14,7 @@ type HeaderProps = {
   onMobileMenuOpen: () => void;
 };
 
-export default function Header({ onMobileMenuOpen }: HeaderProps) {
+export default function Header() {
   const pathname = usePathname();
 
   // notification state — wire to real data later
