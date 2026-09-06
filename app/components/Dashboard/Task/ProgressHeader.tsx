@@ -43,7 +43,7 @@ export default function ProgressHeader({
         </div>
 
         {/* Streak hint — only shown if streak > 0 */}
-        {systemStreak > 0 && (
+        {/* {systemStreak > 0 && (
           <div className="flex items-center gap-1.5 bg-[#F1F3E0] border border-[#D2DCB6]
             rounded-full px-3 py-1.5 flex-shrink-0">
             <Flame size={13} className="text-[#778873]" />
@@ -51,7 +51,7 @@ export default function ProgressHeader({
               {systemStreak} day streak
             </span>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* ── Progress bar ── */}

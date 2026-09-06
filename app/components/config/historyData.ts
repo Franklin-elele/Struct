@@ -15,9 +15,10 @@ export type DayRecord = {
 
 export type HistorySummary = {
   bestStreak: number;
-  currentStreak: number;
-  avgCompletion: number; // percentage 0–100
+  totalCompleted: number;
+  avgCompletion: number;
 };
+
 
 export const mockHistory: DayRecord[] = [
   {
@@ -72,9 +73,9 @@ export const mockHistory: DayRecord[] = [
 ];
 
 export const mockSummary: HistorySummary = {
-  bestStreak:    7,
-  currentStreak: 4,
-  avgCompletion: 74,
+  bestStreak:     7,
+  totalCompleted: 119,
+  avgCompletion:  74,
 };
 
 // ── Completion level helper ──

@@ -1,8 +1,10 @@
 // StructureCard — full detail card for the Structure page
 // Shows complete habit list (not preview), streak, today's execution, edit button
-
-import { Flame, Clock, Pencil, CheckCircle2, Circle } from "lucide-react";
+"use client"
+import { Flame, Clock, Pencil } from "lucide-react";
 import { Structure }  from "@/app/components/config/structureData";
+import { useRouter } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 
 type StructureCardProps = {
   structure: Structure;
@@ -11,6 +13,7 @@ type StructureCardProps = {
 
 export default function StructureCard({ structure, onEdit }: StructureCardProps) {
   const { habits, currentStreak, todayCompleted } = structure;
+  const router = useRouter();
   const totalHabits = habits.length;
 
   return (
@@ -68,31 +71,32 @@ export default function StructureCard({ structure, onEdit }: StructureCardProps)
           Habits
         </p>
         <ul className="flex flex-col gap-2">
-          {habits.map((habit, index) => {
-            // mock: first `todayCompleted` habits are done
-            const isDone = index < todayCompleted;
-            return (
-              <li key={habit.id} className="flex items-center gap-2.5">
-                {isDone
-                  ? <CheckCircle2 size={15} className="text-[#A1BC98] flex-shrink-0" />
-                  : <Circle       size={15} className="text-[#D2DCB6]  flex-shrink-0" />
-                }
-                <span className={`text-sm flex-1 ${
-                  isDone ? "line-through text-[#a1bc98]" : "text-[#4f5c49]"
-                }`}>
-                  {habit.title}
-                </span>
-                {habit.timeTarget && (
-                  <span className="flex items-center gap-1 text-[10px] text-[#778873]
-                    bg-[#F1F3E0] rounded-full px-1.5 py-0.5 flex-shrink-0">
-                    <Clock size={9} />
-                    {habit.timeTarget}
-                  </span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+  {habits.map((habit) => (
+    <li key={habit.id} className="flex items-center gap-2.5">
+      {/* dot — habits are definitions, not checkable items */}
+      <span className="w-1.5 h-1.5 rounded-full bg-[#D2DCB6] flex-shrink-0" />
+      <span className="text-sm flex-1 text-[#4f5c49]">
+        {habit.title}
+      </span>
+      {habit.timeTarget && (
+        <span className="flex items-center gap-1 text-[10px] text-[#778873]
+          bg-[#F1F3E0] rounded-full px-1.5 py-0.5 flex-shrink-0">
+          <Clock size={9} />
+          {habit.timeTarget}
+        </span>
+      )}
+    </li>
+  ))}
+</ul>
+<button
+  onClick={() => router.push(`/dashboard/structure/${structure.id}`)}
+  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl
+    border-2 border-[#D2DCB6] text-[#778873] text-sm font-semibold
+    hover:border-[#A1BC98] hover:text-[#2d3328] hover:bg-[#F1F3E0]
+    transition-all duration-150"
+>
+  View details <ArrowRight size={14} />
+</button>
       </div>
     </div>
   );

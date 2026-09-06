@@ -113,7 +113,7 @@ export default function StatisticsPage() {
                 ))}
               </div>
             </section>
-
+                
             {/* ── Section 3: Weekly chart ── */}
             <section className="flex flex-col gap-3">
               <p

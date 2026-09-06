@@ -1,39 +1,43 @@
 "use client";
 
 // app/dashboard/profile/page.tsx
-// Three inlined sub-components: ProfileCard, PreferencesCard, AccountCard
-// Kept inline — each is used exactly once and small enough to not justify separate files
-// ToggleSwitch stays external (reused elsewhere)
+// Added: SystemSnapshotCard, dark mode toggle, multiple structures toggle (Premium), Free Plan badge
 
 import { useState, useRef } from "react";
 import {
-  Pencil, Camera, Sun, Moon, Bell,
-  LogOut, LucideIcon,
+  Pencil, Camera, Bell, LogOut, LucideIcon,
+  Flame, CheckSquare, Layers, Moon, Lock, ArrowRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import ToggleSwitch from "@/app/components/Dashboard/ToggleSwitch";
+import LogoutModal from "@/app/components/Dashboard/logoutModal";
 
-// ── Mock user ── replace with auth context later
 const mockUser = {
   firstName: "Ebuka",
   lastName:  "Elele",
   email:     "eleleebuka555@gmail.com",
+  plan:      "free", // "free" | "premium"
+};
+
+// mock snapshot — replace with real data later
+const mockSnapshot = {
+  activeStructures: 2,
+  currentStreak:    7,
+  todayCompleted:   3,
+  todayTotal:       7,
 };
 
 // ─────────────────────────────────────────────
-// ProfileCard
+// ProfileCard — avatar, name, email, plan badge
 // ─────────────────────────────────────────────
 function ProfileCard() {
-  // avatarSrc — null means show initials fallback
+  const router = useRouter();
   const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
-
-  // hidden file input ref — triggered by clicking the camera button
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const initials = `${mockUser.firstName[0]}${mockUser.lastName[0]}`.toUpperCase();
+  const fullName = `${mockUser.firstName} ${mockUser.lastName}`;
 
-  const initials  = `${mockUser.firstName[0]}${mockUser.lastName[0]}`.toUpperCase();
-  const fullName  = `${mockUser.firstName} ${mockUser.lastName}`;
-
-  // read selected image file and convert to data URL for preview
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -43,36 +47,27 @@ function ProfileCard() {
   };
 
   return (
-    <div
-      className="rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-5
-        border shadow-[4px_4px_0px_0px_var(--border)]"
-      style={{ background: "var(--card)", borderColor: "var(--border)" }}
-    >
-      {/* ── Avatar ── */}
+    <div className="bg-white rounded-2xl border border-[#D2DCB6]
+      shadow-[4px_4px_0px_0px_#d2dcb6] p-6 flex flex-col sm:flex-row items-center gap-5">
+
+      {/* Avatar */}
       <div className="relative flex-shrink-0">
         <div className="w-20 h-20 rounded-full overflow-hidden flex items-center
-          justify-center text-2xl font-bold"
-          style={{ background: "var(--card-subtle)", color: "var(--text-muted)" }}
-        >
+          justify-center text-2xl font-bold bg-[#F1F3E0] text-[#778873]">
           {avatarSrc
             ? <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
             : initials
           }
         </div>
-
-        {/* Camera button — triggers hidden file input */}
         <button
           onClick={() => fileInputRef.current?.click()}
           className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full
-            flex items-center justify-center shadow-md
-            transition-all duration-150 hover:scale-110"
-          style={{ background: "var(--accent-dark)", color: "var(--card)" }}
+            flex items-center justify-center bg-[#2d3328] text-[#F1F3E0]
+            shadow-md hover:scale-110 transition-all duration-150"
           aria-label="Change profile photo"
         >
           <Camera size={13} />
         </button>
-
-        {/* Hidden file input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -82,38 +77,91 @@ function ProfileCard() {
         />
       </div>
 
-      {/* ── Name + email ── */}
+      {/* Name + email + plan */}
       <div className="flex-1 min-w-0 text-center sm:text-left">
-        <p className="text-lg font-bold truncate" style={{ color: "var(--text)" }}>
-          {fullName}
-        </p>
-        <p className="text-sm truncate mt-0.5" style={{ color: "var(--text-muted)" }}>
-          {mockUser.email}
-        </p>
-        <span
-          className="inline-block mt-2 text-[10px] font-semibold uppercase
-            tracking-widest px-2.5 py-1 rounded-full"
-          style={{ background: "var(--card-subtle)", color: "var(--text-faint)" }}
-        >
-          Active · Streak going
-        </span>
+        <p className="text-lg font-bold text-[#2d3328] truncate">{fullName}</p>
+        <p className="text-sm text-[#778873] truncate mt-0.5">{mockUser.email}</p>
+        <div className="flex items-center gap-2 mt-2 justify-center sm:justify-start flex-wrap">
+          <span className="text-[10px] font-semibold uppercase tracking-widest
+            px-2.5 py-1 rounded-full bg-[#F1F3E0] text-[#778873]">
+            Active · Streak going
+          </span>
+          {/* Free plan badge + upgrade link */}
+          {mockUser.plan === "free" && (
+            <button
+              onClick={() => router.push("/upgrade")}
+              className="flex items-center gap-1 text-[10px] font-semibold
+                text-[#A1BC98] hover:text-[#2d3328] transition-colors duration-150"
+            >
+              Free Plan · Upgrade <ArrowRight size={10} />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* ── Edit button ── */}
+      {/* Edit button */}
       <button
         className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
-          border transition-all duration-150 self-start sm:self-center
-          hover:opacity-80"
-        style={{
-          borderColor: "var(--border)",
-          color: "var(--text-muted)",
-          background: "var(--card-subtle)",
-        }}
-        aria-label="Edit profile"
+          border border-[#D2DCB6] text-[#778873] bg-[#F1F3E0]
+          hover:border-[#A1BC98] hover:text-[#2d3328] transition-all duration-150
+          self-start sm:self-center"
       >
         <Pencil size={13} />
         Edit
       </button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// SystemSnapshotCard — quick stats at a glance
+// ─────────────────────────────────────────────
+function SnapshotCell({
+  icon: Icon,
+  value,
+  label,
+}: {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 flex-1 py-3">
+      <div className="w-9 h-9 rounded-xl bg-[#F1F3E0] flex items-center justify-center">
+        <Icon size={16} className="text-[#778873]" />
+      </div>
+      <span className="text-base font-bold text-[#2d3328] leading-none">{value}</span>
+      <span className="text-[10px] text-[#778873] font-medium text-center leading-tight">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function SystemSnapshotCard() {
+  return (
+    <div className="bg-white rounded-2xl border border-[#D2DCB6]
+      shadow-[4px_4px_0px_0px_#d2dcb6] p-5 flex flex-col gap-3">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#a1bc98]">
+        System Snapshot
+      </p>
+      <div className="flex items-start divide-x divide-[#F1F3E0]">
+        <SnapshotCell
+          icon={Layers}
+          value={`${mockSnapshot.activeStructures}`}
+          label="Active structures"
+        />
+        <SnapshotCell
+          icon={Flame}
+          value={`${mockSnapshot.currentStreak}d`}
+          label="Current streak"
+        />
+        <SnapshotCell
+          icon={CheckSquare}
+          value={`${mockSnapshot.todayCompleted}/${mockSnapshot.todayTotal}`}
+          label="Done today"
+        />
+      </div>
     </div>
   );
 }
@@ -133,26 +181,16 @@ function SettingsRow({
   right: React.ReactNode;
 }) {
   return (
-    <div
-      className="flex items-center justify-between gap-4 py-4
-        border-b last:border-none"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <div className="flex items-center justify-between gap-4 py-4
+      border-b border-[#F1F3E0] last:border-none">
       <div className="flex items-center gap-3">
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: "var(--card-subtle)" }}
-        >
-          <Icon size={16} style={{ color: "var(--text-muted)" }} />
+        <div className="w-9 h-9 rounded-xl bg-[#F1F3E0] flex items-center justify-center flex-shrink-0">
+          <Icon size={16} className="text-[#778873]" />
         </div>
         <div>
-          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            {label}
-          </p>
+          <p className="text-sm font-semibold text-[#2d3328]">{label}</p>
           {description && (
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-faint)" }}>
-              {description}
-            </p>
+            <p className="text-xs text-[#a1bc98] mt-0.5">{description}</p>
           )}
         </div>
       </div>
@@ -162,34 +200,63 @@ function SettingsRow({
 }
 
 // ─────────────────────────────────────────────
-// PreferencesCard
+// PreferencesCard — reminders, dark mode, multiple structures
 // ─────────────────────────────────────────────
 function PreferencesCard() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState(true);
+  const [darkMode, setDarkMode]           = useState(false);
+  const isPremium = mockUser.plan === "premium";
 
   return (
-    <div
-      className="rounded-2xl px-5 border shadow-[4px_4px_0px_0px_var(--border)]"
-      style={{ background: "var(--card)", borderColor: "var(--border)" }}
-    >
-      <p
-        className="text-[10px] font-semibold uppercase tracking-widest pt-4 pb-2"
-        style={{ color: "var(--text-faint)" }}
-      >
+    <div className="bg-white rounded-2xl border border-[#D2DCB6]
+      shadow-[4px_4px_0px_0px_#d2dcb6] px-5">
+      <p className="text-[10px] font-semibold uppercase tracking-widest
+        text-[#a1bc98] pt-4 pb-2">
         Preferences
       </p>
 
+      {/* Reminders */}
+     
 
+      {/* Dark mode */}
       <SettingsRow
-        icon={Bell}
-        label="Reminders"
-        description="Morning and night nudges"
+        icon={Moon}
+        label="Dark Mode"
+        description="Switch appearance"
         right={
           <ToggleSwitch
-            enabled={notifications}
-            onToggle={() => setNotifications((n) => !n)}
-            ariaLabel="Toggle reminders"
+            enabled={darkMode}
+            onToggle={() => setDarkMode((d) => !d)}
+            ariaLabel="Toggle dark mode"
           />
+        }
+      />
+
+      {/* Multiple structures — Premium only */}
+      <SettingsRow
+        icon={Layers}
+        label="Multiple Structures"
+        description={isPremium ? "Run parallel structures" : "Premium feature"}
+        right={
+          isPremium ? (
+            <ToggleSwitch
+              enabled={true}
+              onToggle={() => {}}
+              ariaLabel="Toggle multiple structures"
+            />
+          ) : (
+            // locked for free users — redirect to upgrade
+            <button
+              onClick={() => router.push("/upgrade")}
+              className="flex items-center gap-1.5 text-[10px] font-semibold
+                text-[#a1bc98] hover:text-[#2d3328] transition-colors duration-150
+                bg-[#F1F3E0] border border-[#D2DCB6] rounded-lg px-2.5 py-1.5"
+            >
+              <Lock size={10} />
+              Upgrade
+            </button>
+          )
         }
       />
     </div>
@@ -200,25 +267,27 @@ function PreferencesCard() {
 // AccountCard
 // ─────────────────────────────────────────────
 function AccountCard() {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   return (
-    <div
-      className="rounded-2xl px-5 border shadow-[4px_4px_0px_0px_var(--border)]"
-      style={{ background: "var(--card)", borderColor: "var(--border)" }}
-    >
-      <p
-        className="text-[10px] font-semibold uppercase tracking-widest pt-4 pb-2"
-        style={{ color: "var(--text-faint)" }}
-      >
+    <div className="bg-white rounded-2xl border border-[#D2DCB6]
+      shadow-[4px_4px_0px_0px_#d2dcb6] px-5">
+      <p className="text-[10px] font-semibold uppercase tracking-widest
+        text-[#a1bc98] pt-4 pb-2">
         Account
       </p>
-
+      {showLogoutModal && (
+        <LogoutModal
+          onClose={() => setShowLogoutModal(false)}
+        />
+      )}
       <SettingsRow
         icon={LogOut}
         label="Log out"
         description="Sign out of your account"
         right={
           <button
-            onClick={() => {/* wire to auth signout later */}}
+            onClick={() => setShowLogoutModal(true)}
             className="flex items-center gap-1.5 text-xs font-semibold
               text-red-400 hover:text-red-500 transition-colors duration-150
               px-3 py-1.5 rounded-lg hover:bg-red-50"
@@ -233,39 +302,25 @@ function AccountCard() {
 }
 
 // ─────────────────────────────────────────────
-// ProfilePage — assembles all three cards
+// ProfilePage
 // ─────────────────────────────────────────────
 export default function ProfilePage() {
-  // useDarkMode handles state + localStorage + <html> class toggle
-
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-5 max-w-lg mx-auto">
-
-        {/* Header */}
         <div>
-          <h2
-            className="text-xl font-bold tracking-tight"
-            style={{ color: "var(--text)" }}
-          >
-            Profile
-          </h2>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
-            Manage your account and preferences.
-          </p>
+          <h2 className="text-xl font-bold tracking-tight text-[#2d3328]">Profile</h2>
+          <p className="text-sm mt-0.5 text-[#778873]">Manage your account and preferences.</p>
         </div>
 
         <ProfileCard />
+        <SystemSnapshotCard />
         <PreferencesCard />
         <AccountCard />
 
-        <p
-          className="text-center text-[10px] font-medium tracking-widest uppercase pb-2"
-          style={{ color: "var(--border)" }}
-        >
+        <p className="text-center text-[10px] font-medium tracking-widest uppercase pb-2 text-[#D2DCB6]">
           Struct V1 · MVP
         </p>
-
       </div>
     </DashboardLayout>
   );

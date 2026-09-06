@@ -17,7 +17,7 @@ export default function Step2StructureTitle({ title, onChange }: Step2Props) {
         </h2>
         <p className="text-sm text-[#778873] mt-1">
           A structure is a system you commit to running every day.
-          You can have up to 2.
+          Free plan includes 1 structure. Upgrade to Premium to run more in parallel.
         </p>
       </div>
 

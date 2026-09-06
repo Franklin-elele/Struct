@@ -1,7 +1,7 @@
 // HistorySummary — top stats strip: best streak, current streak, avg completion
 // Reusable on Statistics page later
 
-import { Flame, TrendingUp, Trophy } from "lucide-react";
+import { Trophy, TrendingUp, CheckSquare } from "lucide-react";
 import { HistorySummary } from "@/app/components/config/historyData";
 
 type HistorySummaryProps = {
@@ -43,24 +43,24 @@ export default function HistorySummaryCard({ summary }: HistorySummaryProps) {
       </div>
 
       <div className="flex items-start gap-2">
-        <SummaryCell
-          icon={<Trophy size={16} className="text-[#778873]" />}
-          value={`${summary.bestStreak}d`}
-          label="Best streak"
-        />
-        <div className="w-px self-stretch bg-[#F1F3E0]" />
-        <SummaryCell
-          icon={<Flame size={16} className="text-[#778873]" />}
-          value={`${summary.currentStreak}d`}
-          label="Current streak"
-        />
-        <div className="w-px self-stretch bg-[#F1F3E0]" />
-        <SummaryCell
-          icon={<TrendingUp size={16} className="text-[#A1BC98]" />}
-          value={`${summary.avgCompletion}%`}
-          label="Avg completion"
-        />
-      </div>
+  <SummaryCell
+    icon={<Trophy size={16} className="text-[#778873]" />}
+    value={`${summary.bestStreak}d`}
+    label="Best day streak"
+  />
+  <div className="w-px self-stretch bg-[#F1F3E0]" />
+  <SummaryCell
+    icon={<TrendingUp size={16} className="text-[#A1BC98]" />}
+    value={`${summary.avgCompletion}%`}
+    label="Avg completion"
+  />
+  <div className="w-px self-stretch bg-[#F1F3E0]" />
+  <SummaryCell
+    icon={<CheckSquare size={16} className="text-[#778873]" />}
+    value={`${summary.totalCompleted}`}
+    label="Tasks completed"
+  />
+</div>
     </div>
   );
 }

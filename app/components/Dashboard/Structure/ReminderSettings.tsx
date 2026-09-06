@@ -2,12 +2,12 @@
 // Reusable: used in StructureModal and onboarding Step4
 
 import { Sun, Moon } from "lucide-react";
-import { StructureReminders } from "@/app/components/config/structureData";
+// import { StructureReminders } from "@/app/components/config/structureData";
 
-type ReminderSettingsProps = {
-  value: StructureReminders;
-  onChange: (updated: StructureReminders) => void;
-};
+// type ReminderSettingsProps = {
+//   value: StructureReminders;
+//   onChange: (updated: StructureReminders) => void;
+// };
 
 type ReminderRowProps = {
   label: string;
@@ -38,7 +38,7 @@ function ReminderRow({
         <button
           type="button"
           onClick={onToggle}
-          className={`w-10 h-5 rounded-full flex items-center px-0.5 flex-shrink-0
+          className={`w-10 h-5 rounded-full flex items-center px-0.5 flex-shrink-0  
             transition-colors duration-200 ${enabled ? "bg-[#A1BC98]" : "bg-[#D2DCB6]"}`}
         >
           <span className={`w-4 h-4 rounded-full bg-white shadow-sm
@@ -64,27 +64,27 @@ function ReminderRow({
   );
 }
 
-export default function ReminderSettings({ value, onChange }: ReminderSettingsProps) {
-  return (
-    <div className="flex flex-col gap-2.5">
-      <ReminderRow
-        label="Morning reminder"
-        description="Start your day with intention"
-        icon={<Sun size={15} />}
-        enabled={value.morningEnabled}
-        time={value.morningTime}
-        onToggle={() => onChange({ ...value, morningEnabled: !value.morningEnabled })}
-        onTimeChange={(t) => onChange({ ...value, morningTime: t })}
-      />
-      <ReminderRow
-        label="Night reminder"
-        description="Review and close out your day"
-        icon={<Moon size={15} />}
-        enabled={value.nightEnabled}
-        time={value.nightTime}
-        onToggle={() => onChange({ ...value, nightEnabled: !value.nightEnabled })}
-        onTimeChange={(t) => onChange({ ...value, nightTime: t })}
-      />
-    </div>
-  );
-}
+// export default function ReminderSettings({ value, onChange }: ReminderSettingsProps) {
+//   return (
+//     <div className="flex flex-col gap-2.5">
+//       <ReminderRow
+//         label="Morning reminder"
+//         description="Start your day with intention"
+//         icon={<Sun size={15} />}
+//         enabled={value.morningEnabled}
+//         time={value.morningTime}
+//         onToggle={() => onChange({ ...value, morningEnabled: !value.morningEnabled })}
+//         onTimeChange={(t) => onChange({ ...value, morningTime: t })}
+//       />
+//       <ReminderRow
+//         label="Night reminder"
+//         description="Review and close out your day"
+//         icon={<Moon size={15} />}
+//         enabled={value.nightEnabled}
+//         time={value.nightTime}
+//         onToggle={() => onChange({ ...value, nightEnabled: !value.nightEnabled })}
+//         onTimeChange={(t) => onChange({ ...value, nightTime: t })}
+//       />
+//     </div>
+//   );
+// }

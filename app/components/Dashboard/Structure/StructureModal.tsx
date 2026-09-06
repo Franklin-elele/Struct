@@ -7,12 +7,12 @@
 import { useState, useEffect } from "react";
 import { X, Plus } from "lucide-react";
 import HabitInputRow from "./HabitInputRow";
-import ReminderSettings from "./ReminderSettings";
+// import ReminderSettings from "./ReminderSettings";
 import {
   Structure,
   HabitItem,
-  StructureReminders,
-  DEFAULT_REMINDERS,
+  // StructureReminders,
+  // DEFAULT_REMINDERS,
 } from "@/app/components/config/structureData";
 
 type StructureModalProps = {
@@ -33,9 +33,9 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
   const [habits, setHabits]         = useState<HabitItem[]>(
     initial?.habits ?? [{ id: generateId(), title: "", timeTarget: undefined }]
   );
-  const [reminders, setReminders]   = useState<StructureReminders>(
-    initial?.reminders ?? DEFAULT_REMINDERS
-  );
+  // const [reminders, setReminders]   = useState<StructureReminders>(
+  //   initial?.reminders ?? DEFAULT_REMINDERS
+  // );
 
   // close on Escape
   useEffect(() => {
@@ -67,7 +67,6 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
     onSave({
       title: title.trim(),
       habits: habits.filter((h) => h.title.trim()), // strip empty habit rows
-      reminders,
     });
     onClose();
   };
@@ -160,7 +159,7 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
                 (optional)
               </span>
             </label>
-            <ReminderSettings value={reminders} onChange={setReminders} />
+            {/* <ReminderSettings value={reminders} onChange={setReminders} /> */}
           </div>
 
         </div>

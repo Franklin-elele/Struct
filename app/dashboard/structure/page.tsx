@@ -14,14 +14,16 @@ import {
   Structure,
   MAX_STRUCTURES,
 } from "@/app/components/config/structureData";
+import { useRouter } from "next/navigation";
 
 // modal mode — null = closed, "create" = new, Structure = edit existing
 type ModalMode = null | "create" | Structure;
 
 export default function StructurePage() {
   const [structures, setStructures] = useState<Structure[]>(mockStructures);
-  const [modalMode, setModalMode]   = useState<ModalMode>(null);
+  const [modalMode, setModalMode] = useState<ModalMode>(null);
 
+  const router = useRouter();
   const atLimit = structures.length >= MAX_STRUCTURES;
 
   // save handler — handles both create and edit
@@ -32,8 +34,8 @@ export default function StructurePage() {
       // create — append with generated id and default stats
       const newStructure: Structure = {
         ...data,
-        id:             Math.random().toString(36).slice(2, 9),
-        currentStreak:  0,
+        id: Math.random().toString(36).slice(2, 9),
+        currentStreak: 0,
         todayCompleted: 0,
       };
       setStructures((prev) => [...prev, newStructure]);
@@ -51,7 +53,6 @@ export default function StructurePage() {
 
   return (
     <DashboardLayout>
-
       {/* ── Modal ── */}
       {modalMode !== null && (
         <StructureModal
@@ -62,7 +63,6 @@ export default function StructurePage() {
       )}
 
       <div className="flex flex-col gap-6 max-w-2xl mx-auto">
-
         {/* ── Page header ── */}
         <div className="flex items-start justify-between">
           <div>
@@ -77,15 +77,17 @@ export default function StructurePage() {
           {/* Create button */}
           <button
             onClick={() => {
-              if (!atLimit) setModalMode("create");
+              if (atLimit) {
+                router.push("/upgrade"); // placeholder — billing page goes here later
+              } else {
+                setModalMode("create");
+              }
             }}
-            disabled={atLimit}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
-              transition-all duration-150
-              ${!atLimit
-                ? "bg-[#2d3328] text-[#F1F3E0] shadow-[4px_4px_0px_0px_#a1bc98] hover:shadow-[2px_2px_0px_0px_#778873] hover:translate-x-[2px] hover:translate-y-[2px]"
-                : "bg-[#D2DCB6] text-[#a1bc98] cursor-not-allowed"
-              }`}
+            // never disable — redirect instead
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
+  transition-all duration-150 bg-[#2d3328] text-[#F1F3E0]
+  shadow-[3.5px_3px_0px_0px_#a1bc98] hover:shadow-[2px_2px_0px_0px_#778873]
+  hover:translate-x-[2px] hover:translate-y-[2px]"
           >
             <Plus size={15} />
             Create
@@ -94,14 +96,13 @@ export default function StructurePage() {
 
         {/* ── Limit banner — shown when at max ── */}
         {atLimit && (
-          <div className="flex items-start gap-3 p-4 rounded-xl
-            bg-[#F1F3E0] border border-[#D2DCB6]">
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-[#F1F3E0] border border-[#D2DCB6]">
             <Info size={15} className="text-[#778873] flex-shrink-0 mt-0.5" />
             <p className="text-sm text-[#4f5c49] leading-relaxed">
               <span className="font-semibold text-[#2d3328]">
-                Struct is designed for focus.
+                Free plan includes 1 structure.
               </span>{" "}
-              You can only run 2 structures at a time.
+              Upgrade to Premium to run multiple structures in parallel.
             </p>
           </div>
         )}
@@ -110,9 +111,12 @@ export default function StructurePage() {
         {structures.length === 0 ? (
           <div className="text-center py-16 flex flex-col items-center gap-3">
             <p className="text-3xl">◈</p>
-            <p className="text-sm font-semibold text-[#2d3328]">No structures yet.</p>
+            <p className="text-sm font-semibold text-[#2d3328]">
+              No structures yet.
+            </p>
             <p className="text-xs text-[#778873] max-w-xs">
-              Create your first structure to start building a disciplined daily system.
+              Create your first structure to start building a disciplined daily
+              system.
             </p>
             <button
               onClick={() => setModalMode("create")}
@@ -137,7 +141,6 @@ export default function StructurePage() {
             ))}
           </div>
         )}
-
       </div>
     </DashboardLayout>
   );

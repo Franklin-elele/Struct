@@ -7,15 +7,16 @@ import { useState } from "react";
 import Step1SignupForm, { SignupData } from "@/app/components/StepOne";
 import Step2StructureTitle from "@/app/components/StepTwo";
 import Step3HabitSetup from "@/app/components/StepThree";
-import Step4ReminderSettings from "@/app/components/StepFour";
 import { Habit } from "@/app/components/Inputs/HabitInputRow";
-import { ReminderConfig } from "@/app/components/Inputs/ReminderSettings";
 import { MoveLeft, MoveRight } from 'lucide-react';
 import Loader from "@/app/components/Loader";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/services/auth.service";
 import { useNavigate } from "@/hooks/useNavigate";
 import toast from "react-hot-toast";
+import api from "@/lib/api";
+import CompletionScreen from "@/app/components/Auth/CompletionScreen";
+import StepIndicator from "@/app/components/Auth/StepIndicator";
 
 
 // ── Shared onboarding state shape ──
@@ -23,86 +24,19 @@ type OnboardingState = {
   signup: SignupData;
   structureTitle: string;
   habits: Habit[];
-  reminders: ReminderConfig;
 };
 
-const STEPS = ["Account", "Structure", "Habits", "Reminders"];
+const STEPS = ["Account", "Structure", "Habits"];
 
 const INITIAL_STATE: OnboardingState = {
   signup: { firstName: "", lastName: "", email: "", password: "" },
   structureTitle: "",
   habits: [{ id: "h1", title: "", timeEnabled: false, timeTarget: "08:00" }],
-  reminders: {
-    morningEnabled: false,
-    morningTime: "08:00",
-    nightEnabled: false,
-    nightTime: "21:00",
-  },
 };
 
 // ── Step progress indicator ──
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <div className="flex items-center gap-2">
-      {Array.from({ length: total }).map((_, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <div
-            className={`h-1.5 rounded-full transition-all duration-300 ${i < current
-              ? "bg-[#778873] w-8"
-              : i === current
-                ? "bg-[#A1BC98] w-8"
-                : "bg-[#D2DCB6] w-4"
-              }`}
-          />
-        </div>
-      ))}
-      <span className="text-xs text-[#778873] ml-1 font-medium">
-        {current + 1} / {total}
-      </span>
-    </div>
-  );
-}
 
-// ── Completion screen ──
-function CompletionScreen({ name }: { name: string }) {
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  const handleFinish = () => {
-    setLoading(true);
-    router.push("/dashboard/home");
-  }
-
-  return (
-    <div>
-      {loading && <Loader variant="page" />}
-      <div className="flex flex-col items-center gap-6 py-6 text-center">
-
-        <div className="w-16 h-16 rounded-2xl bg-[#D2DCB6] flex items-center justify-center text-3xl">
-          ◈
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-[#2d3328] tracking-tight">
-            You're all set{name ? `, ${name}` : ""}!
-          </h2>
-          <p className="text-sm text-[#778873] mt-2 max-w-xs">
-            Your first structure is ready. Time to stop planning and start executing.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="w-full py-3 rounded-xl bg-[#2d3328] text-[#F1F3E0] text-sm font-semibold
-          shadow-[5px_4px_0px_1px_#a1bc98]
-          hover:shadow-[2px_2px_0px_1px_#778873] hover:translate-x-[3px] hover:translate-y-[2px]
-          transition-all duration-150"
-          onClick={handleFinish}
-        >
-          Continue to Dashboard →
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ── Main container ──
 export default function OnboardingContainer() {
@@ -132,7 +66,7 @@ export default function OnboardingContainer() {
     }
 
     try {
-      await toast.promise(
+      const res = await toast.promise(
           signUp({
             firstname: state.signup.firstName,
             lastname: state.signup.lastName,
@@ -145,9 +79,11 @@ export default function OnboardingContainer() {
           error: (err) => err?.response?.data?.message || "Something went wrong",
         }
       );
+      console.log("Sign up response:", res.data);
 
       setDone(true)
-    } catch {
+    } catch (error) {
+      console.error("Sign up error: ", error);
     }
   };
 
@@ -199,12 +135,6 @@ export default function OnboardingContainer() {
                   <Step3HabitSetup
                     habits={state.habits}
                     onChange={(v) => update("habits", v)}
-                  />
-                )}
-                {step === 3 && (
-                  <Step4ReminderSettings
-                    reminders={state.reminders}
-                    onChange={(v) => update("reminders", v)}
                   />
                 )}
               </div>

@@ -1,14 +1,13 @@
-// StatsCard — updated to show system-level streak
-// System streak = min(all structure streaks)
-// A day only counts if ALL structures met their threshold — not just one
+// StatsCard — Today's progress overview
+// Shows: circular progress ring, days left in 90-day cycle, done today, completion %
+// h-full ensures equal height with StructureCard when used side by side
 
-import { Flame, CheckSquare, TrendingUp } from "lucide-react";
+import { CalendarDays, CheckSquare, TrendingUp } from "lucide-react";
 import { Stats } from "../config/mockData";
-import { Structure } from "../config/mockData";
 
 type StatsCardProps = {
   stats: Stats;
-  structures: Structure[]; // needed to compute system streak
+  daysRemaining?: number; // days left in the 90-day cycle, defaults to 90
 };
 
 function StatCell({
@@ -33,23 +32,17 @@ function StatCell({
   );
 }
 
-export default function StatsCard({ stats, structures }: StatsCardProps) {
+export default function StatsCard({ stats, daysRemaining = 90 }: StatsCardProps) {
   const { completedToday, totalToday, overallPercent } = stats;
-
-  // system streak = the weakest link across all active structures
-  // if any structure breaks its streak, the whole system resets
-  const systemStreak =
-    structures.length > 0
-      ? Math.min(...structures.map((s) => s.currentStreak))
-      : 0;
 
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference - (overallPercent / 100) * circumference;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#D2DCB6]
-      shadow-[4px_4px_0px_0px_#d2dcb6] p-5 flex flex-col gap-5">
+    // h-full stretches card to match sibling height in grid
+    <div className="bg-white rounded-2xl border border-[#D2DCB6] mr-2
+      shadow-[4px_4px_0px_0px_#d2dcb6] p-5 flex flex-col gap-5 h-full">
 
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#a1bc98] mb-1">
@@ -58,8 +51,8 @@ export default function StatsCard({ stats, structures }: StatsCardProps) {
         <h3 className="text-base font-bold text-[#2d3328]">Overview</h3>
       </div>
 
-      {/* ── Circular progress ring ── */}
-      <div className="flex items-center justify-center">
+      {/* Circular progress ring — grows to fill available space */}
+      <div className="flex items-center justify-center flex-1">
         <div className="relative w-20 h-20">
           <svg viewBox="0 0 72 72" className="w-full h-full -rotate-90">
             <circle cx="36" cy="36" r={radius} fill="none" stroke="#F1F3E0" strokeWidth="6" />
@@ -77,32 +70,25 @@ export default function StatsCard({ stats, structures }: StatsCardProps) {
         </div>
       </div>
 
-      {/* ── Stat cells ── */}
+      {/* Stat cells — pinned to bottom */}
       <div className="flex items-start gap-2 pt-1 border-t border-[#F1F3E0]">
-
-        {/* System streak — min of all structure streaks, not the best one */}
         <StatCell
-          icon={<Flame size={16} className="text-[#778873]" />}
-          value={`${systemStreak}d`}
-          label="System streak"
+          icon={<CalendarDays size={16} className="text-[#778873]" />}
+          value={`${daysRemaining}d`}
+          label="Days left"
         />
-
         <div className="w-px self-stretch bg-[#F1F3E0]" />
-
         <StatCell
           icon={<CheckSquare size={16} className="text-[#A1BC98]" />}
           value={`${completedToday}/${totalToday}`}
           label="Done today"
         />
-
         <div className="w-px self-stretch bg-[#F1F3E0]" />
-
         <StatCell
           icon={<TrendingUp size={16} className="text-[#778873]" />}
           value={`${overallPercent}%`}
           label="Completion"
         />
-
       </div>
     </div>
   );

@@ -16,8 +16,9 @@ const ubuntu = Ubuntu({
 export const metadata: Metadata = {
   title: "Struct — Structure your life",
   description:
-    "A minimal accountability app to help you build discipline through consistent daily action.",
+    "A minimal personal-growth accountability app to help you build discipline through consistent daily action.",
 };
+
 
 export default function RootLayout({
   children,
