@@ -11,7 +11,7 @@ interface IStructure {
     UpdatedAt: Date;
 }
 
-const structureSchema = new Schema <IStructure>({
+const structureSchemaModal = new Schema <IStructure>({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -20,7 +20,7 @@ const structureSchema = new Schema <IStructure>({
     title: {
         type: String,
         required: true,
-        trim: true,
+        trim: true,  
         minLength: 3,
     },
     startDate: {
@@ -43,6 +43,6 @@ const structureSchema = new Schema <IStructure>({
 
 }, {timestamps: true});
 
-const structureSchemaModel = mongoose.models.Structure || model<IStructure>("Structure", structureSchema);
+const structureSchema = mongoose.models.Structure || model<IStructure>("Structure", structureSchemaModal);
 
-export default structureSchemaModel;
+export default structureSchema;

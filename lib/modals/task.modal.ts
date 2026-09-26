@@ -43,7 +43,7 @@ const taskSchema = new Schema <ITask> ({
     }
 }, {timestamps: true});
 
-// Ensures no duplicate Task exists for the same Habit on the same day —
+// The index ensures no duplicate Task exists for the same Habit on the same day —
 // prevents double-generation (e.g. if the daily Task-generation job runs twice by accident)
 taskSchema.index({ habitId: 1, date: 1 }, { unique: true });
 const taskSchemaModel = mongoose.models.Task || model<ITask>("Task", taskSchema);

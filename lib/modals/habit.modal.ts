@@ -10,7 +10,7 @@ interface IHabit extends Document {
     updatedAt: Date;
 }
 
-const habitSchema = new Schema <IHabit>({
+const habitSchemaModal = new Schema <IHabit>({
     structureId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Structure",
@@ -38,6 +38,6 @@ const habitSchema = new Schema <IHabit>({
     }
 }, {timestamps: true});
 
-const habitSchemaModel = mongoose.models.Habit || model<IHabit>("Habit", habitSchema);
+const habitSchema = mongoose.models.Habit || model<IHabit>("Habit", habitSchemaModal);
 
-export default habitSchemaModel;
+export default habitSchema;

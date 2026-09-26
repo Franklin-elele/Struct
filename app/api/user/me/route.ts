@@ -27,7 +27,6 @@ export async function GET(request: Request) {
       });
     }
     return new Response(JSON.stringify({ user }), { status: 200 });
-
   } catch (error) {
     return new Response(JSON.stringify({ message: "Error verifying token" }), {
       status: 500,

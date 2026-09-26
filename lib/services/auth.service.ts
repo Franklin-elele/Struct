@@ -21,4 +21,4 @@ export const login = async (data: LoginPayload) =>
 
 export const logout = async () => api.post("api/auth/logout");
 
-export const getCurrentUser = async () => api.get("api/auth/me");
+export const getCurrentUser = async () => api.get("api/auth/user/me");
