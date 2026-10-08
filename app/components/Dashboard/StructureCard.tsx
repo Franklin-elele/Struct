@@ -7,10 +7,11 @@ import { Structure } from "@/app/components/config/structureData";
 
 type StructureCardProps = {
   structure: Structure;
-  onEdit: (structure: Structure) => void;
+  onEdit?: (structure: Structure) => void;
+  dayNumber?: number;
 };
 
-export default function StructureCard({ structure, onEdit }: StructureCardProps) {
+export default function StructureCard({ structure, onEdit, dayNumber = 1 }: StructureCardProps) {
   const router = useRouter();
   const { habits, currentStreak, todayCompleted } = structure;
   const totalHabits = habits.length;
@@ -28,7 +29,7 @@ export default function StructureCard({ structure, onEdit }: StructureCardProps)
           <h3 className="text-lg font-bold text-[#2d3328] leading-tight">
             {structure.title}
           </h3>
-          <p className="text-[11px] text-[#a1bc98] font-medium mt-0.5">Day 1 of 90</p>
+          <p className="text-[11px] text-[#a1bc98] font-medium mt-0.5">Day {dayNumber} of 90</p>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -39,15 +40,17 @@ export default function StructureCard({ structure, onEdit }: StructureCardProps)
               <span className="text-xs font-semibold text-[#2d3328]">{currentStreak}d</span>
             </div>
           )}
-          <button
-            onClick={() => onEdit(structure)}
-            className="w-8 h-8 flex items-center justify-center rounded-xl
-              text-[#778873] hover:bg-[#F1F3E0] hover:text-[#2d3328]
-              border border-[#D2DCB6] transition-all duration-150"
-            aria-label="Edit structure"
-          >
-            <Pencil size={14} />
-          </button>
+         {onEdit && (
+  <button
+    onClick={() => onEdit(structure)}
+    className="w-8 h-8 flex items-center justify-center rounded-xl
+      text-[#778873] hover:bg-[#F1F3E0] hover:text-[#2d3328]
+      border border-[#D2DCB6] transition-all duration-150"
+    aria-label="Edit structure"
+  >
+    <Pencil size={14} />
+  </button>
+)}
         </div>
       </div>
 

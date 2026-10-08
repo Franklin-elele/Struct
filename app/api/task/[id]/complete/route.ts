@@ -5,11 +5,11 @@ import { verify } from "jsonwebtoken";
 import authSchema from "@/lib/modals/auth.modal";
 import taskSchema from "@/lib/modals/task.modal";
 
-export async function   PATCH(
-    request: Request,
-    { params }: { params: { id: string } },
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
-    const { id } = params;
+  const { id } = await params;
     try {
         await connectDB();
         const cookieStore = await cookies();

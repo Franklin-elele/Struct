@@ -7,9 +7,9 @@ import habitSchema from "@/lib/modals/habit.modal";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = params;
+  const { id } = await params;
   try {
     await connectDB();
     const cookieStore = await cookies();
@@ -59,9 +59,11 @@ export async function POST(
       }),
       { status: 201 },
     );
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ message: "Error creating habit" }),
+      JSON.stringify({ message: "Error creating habit", error: errorMessage }),
       { status: 500 },
     );
   }

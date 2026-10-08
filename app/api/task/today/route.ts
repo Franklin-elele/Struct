@@ -29,22 +29,21 @@ export async function GET(request: Request) {
     }
 
     await generateTasksForUser(user._id.toString());
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
+
     const tasks = await taskSchema.find({
       userId: user._id,
       date: { $gte: todayStart, $lte: todayEnd },
     });
 
-
-
     return new Response(JSON.stringify({ tasks }), { status: 200 });
-
   } catch (error) {
     return new Response(
-      JSON.stringify({ message: "Error fetching current user" }),
+      JSON.stringify({ message: "Error fetching today's tasks" }),
       { status: 500 },
     );
   }

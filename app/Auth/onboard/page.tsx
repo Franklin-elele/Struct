@@ -12,6 +12,7 @@ import { MoveLeft, MoveRight } from 'lucide-react';
 import Loader from "@/app/components/Loader";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/services/auth.service";
+import { createStructure, createHabit } from "@/lib/services/structure.service";
 import { useNavigate } from "@/hooks/useNavigate";
 import toast from "react-hot-toast";
 import api from "@/lib/api";
@@ -79,6 +80,25 @@ export default function OnboardingContainer() {
           error: (err) => err?.response?.data?.message || "Something went wrong",
         }
       );
+
+      const structureRes = await toast.promise(
+        createStructure({ title: state.structureTitle }),
+        {
+          loading: "Creating your structure...",
+          error: (err) => err?.response?.data?.message || "Something went wrong",
+        }
+      )
+
+const structureId = structureRes.data.structure._id;
+      // Create habits
+      for (const habit of state.habits) {
+        if (habit.title.trim().length === 0) continue; // skip empty habits
+        await createHabit(structureId, {
+          title: habit.title,
+          frequency: "daily",
+        })
+      }
+
       console.log("Sign up response:", res.data);
 
       setDone(true)

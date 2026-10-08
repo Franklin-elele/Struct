@@ -69,9 +69,12 @@ export async function POST(request: Request) {
         status: 201,
       },
     );
-  } catch (error) {
+  }  catch (error: unknown) {
+    
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ message: "Error creating structure" }),
+      JSON.stringify({ message: "Error creating structure", error: errorMessage }),
       {
         status: 500,
       },
@@ -105,6 +108,12 @@ export async function GET(request: Request) {
 
     const structures = await structureSchema.find({ userId: user._id });
 
+        if (!structures) {
+      return new Response(JSON.stringify({ message: "Structure not found" }), {
+        status: 404,
+      });
+    }
+
     return new Response(
       JSON.stringify({
         message: "Structures fetched successfully",
@@ -114,9 +123,12 @@ export async function GET(request: Request) {
         status: 200,
       },
     );
-  } catch (error) {
+  } catch (error: unknown) {
+    
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ message: "Error fetching structure" }),
+      JSON.stringify({ message: "Error fetching structure", error: errorMessage }),
       {
         status: 500,
       },

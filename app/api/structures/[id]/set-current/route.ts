@@ -6,9 +6,9 @@ import authSchema from "@/lib/modals/auth.modal";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = params;
+  const { id } = await params;
   try {
     await connectDB();
     const cookieStore = await cookies();
@@ -55,9 +55,12 @@ export async function POST(
       }),
       { status: 200 },
     );
-  } catch (error) {
+  } catch (error: unknown) {
+    
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ message: "Error setting current structure" }),
+      JSON.stringify({ message: "Error setting current structure", error: errorMessage }),
       { status: 500 },
     );
   }

@@ -15,6 +15,7 @@ import { useState } from "react";
 import Loader from "@/app/components/Loader";
 
 
+
 type DashboardLayoutProps = {
   children: React.ReactNode;
 };
@@ -24,6 +25,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [user, setUser] = useState<string | null>(null)
 
 
   useEffect(() => {   
