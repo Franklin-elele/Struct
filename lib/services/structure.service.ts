@@ -17,11 +17,11 @@ export type createHabitPayload = {
 }
 
 export type updateHabitPayload = {
-    title: string;
-    frequency: "daily" | "custom";
+    title?: string;
+    frequency?: "daily" | "custom";
     customDays?: string[];
     duration?: string;
-}
+};
 
 
 // Structures endpoints

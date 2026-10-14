@@ -1,23 +1,19 @@
 // StructureModal — create new structure OR edit existing one
 // Mode is determined by whether `initial` prop is provided
-// onSave receives the full structure data — wire to API later
+// onSave receives the full form data; the parent page makes the API calls
 
 "use client";
 
 import { useState, useEffect } from "react";
 import { X, Plus } from "lucide-react";
 import HabitInputRow from "./HabitInputRow";
-// import ReminderSettings from "./ReminderSettings";
-import {
-  Structure,
-  HabitItem,
-  // StructureReminders,
-  // DEFAULT_REMINDERS,
-} from "@/app/components/config/structureData";
+import { HabitItem } from "@/app/components/config/structureData";
+
+export type StructureFormData = { title: string; habits: HabitItem[] };
 
 type StructureModalProps = {
-  initial?: Structure;  // if provided = edit mode, else = create mode
-  onSave: (data: Omit<Structure, "id" | "currentStreak" | "todayCompleted">) => void;
+  initial?: StructureFormData; // if provided = edit mode, else = create mode
+  onSave: (data: StructureFormData) => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -29,13 +25,11 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
   const isEditing = !!initial;
 
   // ── Form state — pre-filled from `initial` if editing ──
-  const [title, setTitle]           = useState(initial?.title ?? "");
-  const [habits, setHabits]         = useState<HabitItem[]>(
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [habits, setHabits] = useState<HabitItem[]>(
     initial?.habits ?? [{ id: generateId(), title: "", timeTarget: undefined }]
   );
-  // const [reminders, setReminders]   = useState<StructureReminders>(
-  //   initial?.reminders ?? DEFAULT_REMINDERS
-  // );
+  const [saving, setSaving] = useState(false);
 
   // close on Escape
   useEffect(() => {
@@ -62,14 +56,24 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
     title.trim().length > 0 &&
     habits.some((h) => h.title.trim().length > 0);
 
-  const handleSave = () => {
-    if (!canSave) return;
-    onSave({
-      title: title.trim(),
-      habits: habits.filter((h) => h.title.trim()), // strip empty habit rows
-    });
-    onClose();
+  const handleSave = async () => {
+    if (!canSave || saving) return; // the saving check blocks double-clicks
+    setSaving(true);
+    try {
+      await onSave({
+        title: title.trim(),
+        habits: habits.filter((h) => h.title.trim()), // strip empty rows
+      });
+      onClose(); // only close if the save worked
+    } catch {
+      // the page already showed an error toast; keep the modal open
+      // so the user doesn't lose what they typed
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const buttonActive = canSave && !saving;
 
   return (
     <div
@@ -77,7 +81,6 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
         bg-[#2d3328]/30 backdrop-blur-sm p-0 sm:p-4"
       onClick={onClose}
     >
-      {/* ── Modal card ── */}
       {/* Bottom sheet on mobile, centered card on sm+ */}
       <div
         className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl
@@ -85,7 +88,7 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
           flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4
           border-b border-[#F1F3E0] flex-shrink-0">
           <h3 className="text-sm font-bold text-[#2d3328]">
@@ -101,9 +104,8 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
           </button>
         </div>
 
-        {/* ── Scrollable body ── */}
+        {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5">
-
           {/* Title */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-[#4f5c49] uppercase tracking-wider">
@@ -137,7 +139,6 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
                 />
               ))}
             </div>
-            {/* Add habit button */}
             <button
               type="button"
               onClick={addHabit}
@@ -150,21 +151,9 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
               Add habit
             </button>
           </div>
-
-          {/* Reminders */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-[#4f5c49] uppercase tracking-wider">
-              Reminders
-              <span className="font-normal text-[#a1bc98] normal-case tracking-normal ml-1">
-                (optional)
-              </span>
-            </label>
-            {/* <ReminderSettings value={reminders} onChange={setReminders} /> */}
-          </div>
-
         </div>
 
-        {/* ── Footer actions ── */}
+        {/* Footer actions */}
         <div className="flex gap-3 px-6 py-4 border-t border-[#F1F3E0] flex-shrink-0">
           <button
             onClick={onClose}
@@ -177,15 +166,15 @@ export default function StructureModal({ initial, onSave, onClose }: StructureMo
           </button>
           <button
             onClick={handleSave}
-            disabled={!canSave}
+            disabled={!buttonActive}
             className={`flex-1 py-2.5 rounded-xl text-sm font-semibold
               transition-all duration-150
-              ${canSave
+              ${buttonActive
                 ? "bg-[#2d3328] text-[#F1F3E0] shadow-[4px_4px_0px_0px_#a1bc98] hover:shadow-[2px_2px_0px_0px_#778873] hover:translate-x-[2px] hover:translate-y-[2px]"
                 : "bg-[#D2DCB6] text-[#a1bc98] cursor-not-allowed"
               }`}
           >
-            {isEditing ? "Save changes" : "Create"}
+            {saving ? "Saving..." : isEditing ? "Save changes" : "Create"}
           </button>
         </div>
       </div>

@@ -1,12 +1,12 @@
 // Step 3 — Habit Setup: dynamic list of habits with optional time targets
 
 import { useCallback } from "react";
-import HabitInputRow, { Habit } from "../Inputs/HabitInputRow";
-// import InputField from "../Inputs/index";
+import HabitInputRow from "@/app/components/Dashboard/Structure/HabitInputRow";
+import { HabitItem } from "@/app/components/config/structureData";
 
 type Step3Props = {
-  habits: Habit[];
-  onChange: (habits: Habit[]) => void;
+  habits: HabitItem[];
+  onChange: (habits: HabitItem[]) => void;
 };
 
 function generateId() {
@@ -15,14 +15,11 @@ function generateId() {
 
 export default function Step3HabitSetup({ habits, onChange }: Step3Props) {
   const addHabit = useCallback(() => {
-    onChange([
-      ...habits,
-      { id: generateId(), title: "", timeEnabled: false, timeTarget: "08:00" },
-    ]);
+    onChange([...habits, { id: generateId(), title: "", timeTarget: undefined }]);
   }, [habits, onChange]);
 
   const updateHabit = useCallback(
-    (updated: Habit) => {
+    (updated: HabitItem) => {
       onChange(habits.map((h) => (h.id === updated.id ? updated : h)));
     },
     [habits, onChange]
@@ -34,7 +31,7 @@ export default function Step3HabitSetup({ habits, onChange }: Step3Props) {
     },
     [habits, onChange]
   );
-
+  // ...the return/JSX stays exactly as it is
   return (
     <div className="flex flex-col gap-5">
       <div>

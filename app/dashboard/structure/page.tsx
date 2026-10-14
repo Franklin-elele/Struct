@@ -16,6 +16,7 @@ import {
 } from "@/app/components/config/structureData";
 import { useRouter } from "next/navigation";
 
+
 // modal mode — null = closed, "create" = new, Structure = edit existing
 type ModalMode = null | "create" | Structure;
 

@@ -7,7 +7,7 @@ import { useState } from "react";
 import Step1SignupForm, { SignupData } from "@/app/components/StepOne";
 import Step2StructureTitle from "@/app/components/StepTwo";
 import Step3HabitSetup from "@/app/components/StepThree";
-import { Habit } from "@/app/components/Inputs/HabitInputRow";
+import { HabitItem } from "@/app/components/config/structureData";
 import { MoveLeft, MoveRight } from 'lucide-react';
 import Loader from "@/app/components/Loader";
 import { useRouter } from "next/navigation";
@@ -24,7 +24,7 @@ import StepIndicator from "@/app/components/Auth/StepIndicator";
 type OnboardingState = {
   signup: SignupData;
   structureTitle: string;
-  habits: Habit[];
+  habits: HabitItem[];
 };
 
 const STEPS = ["Account", "Structure", "Habits"];
@@ -32,7 +32,7 @@ const STEPS = ["Account", "Structure", "Habits"];
 const INITIAL_STATE: OnboardingState = {
   signup: { firstName: "", lastName: "", email: "", password: "" },
   structureTitle: "",
-  habits: [{ id: "h1", title: "", timeEnabled: false, timeTarget: "08:00" }],
+  habits: [{ id: "h1", title: "" }],
 };
 
 // ── Step progress indicator ──
@@ -94,9 +94,10 @@ const structureId = structureRes.data.structure._id;
       for (const habit of state.habits) {
         if (habit.title.trim().length === 0) continue; // skip empty habits
         await createHabit(structureId, {
-          title: habit.title,
-          frequency: "daily",
-        })
+  title: habit.title,
+  frequency: "daily",
+  duration: habit.timeTarget,
+});
       }
 
       console.log("Sign up response:", res.data);

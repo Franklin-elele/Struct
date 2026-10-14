@@ -4,6 +4,7 @@ export type HabitItem = {
   id: string;
   title: string;
   timeTarget?: string;
+  
 };
 
 // export type StructureReminders = {

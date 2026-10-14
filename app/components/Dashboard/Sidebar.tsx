@@ -4,16 +4,46 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import { sidebarLinks } from "../config/sidebarLinks";
+import { getCurrentUser } from "@/lib/services/auth.service";
 
 export default function Sidebar() {
   // collapsed = icon-only mode, desktop only
   const [collapsed, setCollapsed] = useState(false);
+  const [userName, setUserName] = useState<{ firstname: string; lastname: string } | null>(null);
+
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await getCurrentUser();
+        if (res.data) {
+          const { firstname, lastname } = res.data.user;
+          setUserName({ firstname, lastname });
+        }
+      } catch (error) {
+        console.error("Error fetching user: ", error);
+      }
+    }
+    fetchUser();
+  }, [])
+
+  useEffect(() => {
+    setCollapsed(localStorage.getItem("sidebarCollapsed") === "true");
+  }, []);
+
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    localStorage.setItem("sidebarCollapsed", String(next));
+  };
+
 
   return (
+
     // hidden on mobile/tablet — lg breakpoint and above only
     <aside
       className={`
@@ -32,7 +62,7 @@ export default function Sidebar() {
           </span>
         )}
         <button
-          onClick={() => setCollapsed((c) => !c)}
+          onClick={toggleCollapsed}
           className="w-7 h-7 flex items-center justify-center rounded-lg
             text-[#778873] hover:bg-[#F1F3E0] hover:text-[#2d3328]
             transition-all duration-150"
@@ -47,14 +77,15 @@ export default function Sidebar() {
         ${collapsed ? "justify-center px-2" : ""}`}
       >
         <div className="w-9 h-9 rounded-xl bg-[#D2DCB6] flex items-center justify-center flex-shrink-0">
-          <span className="text-sm font-bold text-[#778873]">U</span>
+          <span className="text-sm font-bold text-[#778873]"> {userName?.firstname.charAt(0).toUpperCase()}</span>
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#2d3328] truncate">Username</p>
+            <p className="text-sm font-semibold text-[#2d3328] truncate">  {userName ? `${userName.firstname} ${userName.lastname}` : ""}
+            </p>
             <p className="text-xs text-[#a1bc98] truncate">Active</p>
           </div>
-        )}
+        )} 
       </div>
 
       {/* ── Nav links ── */}

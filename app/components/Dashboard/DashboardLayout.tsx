@@ -25,10 +25,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [user, setUser] = useState<string | null>(null)
 
 
-  useEffect(() => {   
+  useEffect(() => {
     const checkAuth = async () => {
       try {
         const res = await getCurrentUser();
@@ -47,6 +46,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
     checkAuth();
   }, [router, pathname])
+
+  
 
   return (
     <div className="flex h-screen bg-[#F1F3E0] overflow-hidden">
