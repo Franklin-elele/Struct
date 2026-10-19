@@ -1,11 +1,11 @@
-// HistorySummary — top stats strip: best streak, current streak, avg completion
-// Reusable on Statistics page later
+// HistorySummaryCard — top strip: days tracked, avg completion, tasks completed
 
-import { Trophy, TrendingUp, CheckSquare } from "lucide-react";
+import { CalendarDays, TrendingUp, CheckSquare } from "lucide-react";
 import { HistorySummary } from "@/app/components/config/historyData";
 
-type HistorySummaryProps = {
+type HistorySummaryCardProps = {
   summary: HistorySummary;
+  days: number; // the range the numbers cover
 };
 
 function SummaryCell({
@@ -30,37 +30,37 @@ function SummaryCell({
   );
 }
 
-export default function HistorySummaryCard({ summary }: HistorySummaryProps) {
+export default function HistorySummaryCard({ summary, days }: HistorySummaryCardProps) {
   return (
     <div className="bg-white rounded-2xl border border-[#D2DCB6]
       shadow-[4px_4px_0px_0px_#d2dcb6] p-5">
 
       <div className="mb-4">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-[#a1bc98] mb-1">
-          All time
+          Last {days} days
         </p>
         <h3 className="text-base font-bold text-[#2d3328]">Your consistency</h3>
       </div>
 
       <div className="flex items-start gap-2">
-  <SummaryCell
-    icon={<Trophy size={16} className="text-[#778873]" />}
-    value={`${summary.bestStreak}d`}
-    label="Best day streak"
-  />
-  <div className="w-px self-stretch bg-[#F1F3E0]" />
-  <SummaryCell
-    icon={<TrendingUp size={16} className="text-[#A1BC98]" />}
-    value={`${summary.avgCompletion}%`}
-    label="Avg completion"
-  />
-  <div className="w-px self-stretch bg-[#F1F3E0]" />
-  <SummaryCell
-    icon={<CheckSquare size={16} className="text-[#778873]" />}
-    value={`${summary.totalCompleted}`}
-    label="Tasks completed"
-  />
-</div>
+        <SummaryCell
+          icon={<CalendarDays size={16} className="text-[#778873]" />}
+          value={summary.daysTracked}
+          label="Days tracked"
+        />
+        <div className="w-px self-stretch bg-[#F1F3E0]" />
+        <SummaryCell
+          icon={<TrendingUp size={16} className="text-[#A1BC98]" />}
+          value={`${summary.avgCompletion}%`}
+          label="Avg completion"
+        />
+        <div className="w-px self-stretch bg-[#F1F3E0]" />
+        <SummaryCell
+          icon={<CheckSquare size={16} className="text-[#778873]" />}
+          value={summary.totalCompleted}
+          label="Tasks completed"
+        />
+      </div>
     </div>
   );
 }

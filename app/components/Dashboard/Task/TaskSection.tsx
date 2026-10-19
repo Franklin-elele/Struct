@@ -1,42 +1,30 @@
-// TaskSection — self-contained tasks section
-// Handles its own task state internally so it can be dropped anywhere
-// onViewAll — wire to router.push('/dashboard/tasks') in parent
-
 "use client";
 
-import { useState } from "react";
+// TaskSection — today's tasks list. Controlled: the parent owns the tasks
+// and decides what happens on toggle.
+
 import { ArrowRight } from "lucide-react";
 import TaskItem from "./TaskItem";
 import { Task } from "../../config/tasksData";
 
 type TaskSectionProps = {
-  initialTasks: Task[];
+  tasks: Task[];
+  onToggle: (id: string) => void;
   onViewAll?: () => void;
 };
 
-export default function TaskSection({ initialTasks, onViewAll }: TaskSectionProps) {
-  // task state lives here — toggling updates progress bar and fraction live
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-
-  const toggleTask = (id: string) =>
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    );
-
+export default function TaskSection({ tasks, onToggle, onViewAll }: TaskSectionProps) {
   const completedCount = tasks.filter((t) => t.completed).length;
-  const totalCount     = tasks.length;
-  const percent        = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const totalCount = tasks.length;
+  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
     <section className="flex flex-col gap-3">
-
-      {/* ── Section header ── */}
       <div className="flex items-end justify-between">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-widest text-[#a1bc98] mb-0.5">
             Today's Tasks
           </p>
-          {/* Live fraction — updates as tasks are checked */}
           <p className="text-sm font-bold text-[#2d3328]">
             {completedCount}/{totalCount} completed
           </p>
@@ -53,7 +41,6 @@ export default function TaskSection({ initialTasks, onViewAll }: TaskSectionProp
         )}
       </div>
 
-      {/* ── Progress bar — not interactive, reflects state only ── */}
       <div className="w-full h-1.5 bg-[#F1F3E0] rounded-full overflow-hidden border border-[#D2DCB6]">
         <div
           className="h-full bg-[#A1BC98] rounded-full transition-all duration-500"
@@ -61,12 +48,9 @@ export default function TaskSection({ initialTasks, onViewAll }: TaskSectionProp
         />
       </div>
 
-      {/* ── Task list ── */}
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} onToggle={toggleTask} onEdit={function (task: Task): void {
-            throw new Error("Function not implemented.");
-          } } />
+          <TaskItem key={task.id} task={task} onToggle={onToggle} />
         ))}
 
         {tasks.length === 0 && (
@@ -75,7 +59,6 @@ export default function TaskSection({ initialTasks, onViewAll }: TaskSectionProp
           </p>
         )}
       </div>
-
     </section>
   );
 }

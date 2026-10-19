@@ -24,6 +24,8 @@ import {
 } from "@/app/components/config/mockData";
 import Loader from "@/app/components/Loader";
 import EmptyState from "@/app/components/Dashboard/EmptyState";
+import { useToggleTask } from "@/hooks/useToggleTask";
+
 
 // ── Shapes of what the backend actually returns ──
 type ApiStructure = {
@@ -46,6 +48,7 @@ type ApiTask = {
   habitId: string;
   structureId: string;
   title: string;
+  duration?: string;
   completed: boolean;
 };
 
@@ -58,6 +61,8 @@ function MobileCarousel({ children }: { children: React.ReactNode[] }) {
     align: "start",
   });
   const [activeIndex, setActiveIndex] = useState(0);
+  const [tasks, setTasks] = useState<ApiTask[]>([]);
+  const toggleTask = useToggleTask(setTasks);
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -104,6 +109,7 @@ export default function HomePage() {
   const [structures, setStructures] = useState<ApiStructure[]>([]);
   const [habits, setHabits] = useState<ApiHabit[]>([]);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
+  const toggleTask = useToggleTask(setTasks);
 
   // ── Fetch structures + today's tasks, then the primary structure's habits ──
   useEffect(() => {
@@ -219,6 +225,7 @@ export default function HomePage() {
     title: t.title,
     completed: t.completed,
     structureId: t.structureId,
+    time: t.duration,
     structureTitle:
       structures.find((s) => s._id === t.structureId)?.title ?? "",
   }));
@@ -309,7 +316,8 @@ export default function HomePage() {
 
             {/* Today's tasks */}
             <TaskSection
-              initialTasks={taskListForSection}
+              tasks={taskListForSection}
+              onToggle={toggleTask}
               onViewAll={() => router.push("/dashboard/tasks")}
             />
           </>

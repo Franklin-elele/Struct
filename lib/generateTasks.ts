@@ -23,18 +23,20 @@ export async function generateTasksForUser(userId: string) {
   const habits = await habitSchema.find({ structureId: { $in: structureIds } });
 
   for (const habit of habits) {
-    if (!isHabitDueToday(habit, today)) continue;
+  if (!isHabitDueToday(habit, today)) continue;
 
-    const exists = await taskSchema.findOne({ habitId: habit._id, date: today });
-    if (exists) continue;
-
-    await taskSchema.create({
-      habitId: habit._id,
-      structureId: habit.structureId,
-      userId,
-      date: today,
-      title: habit.title,
-      completed: false,
-    });
-  }
+  await taskSchema.updateOne(
+    { habitId: habit._id, date: today },
+    {
+      $set: { duration: habit.duration ?? "" },
+      $setOnInsert: {
+        structureId: habit.structureId,
+        userId,
+        title: habit.title,
+        completed: false,
+      },
+    },
+    { upsert: true },
+  );
+}
 }

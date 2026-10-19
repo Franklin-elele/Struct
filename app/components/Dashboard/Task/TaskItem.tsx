@@ -8,7 +8,7 @@ import { Task } from "../../config/tasksData";
 type TaskItemProps = {
   task: Task;
   onToggle: (id: string) => void;
-  onEdit: (task: Task) => void; // triggers modal in parent
+  onEdit?: (task: Task) => void;
 };
 
 export default function TaskItem({ task, onToggle, onEdit }: TaskItemProps) {
@@ -49,15 +49,17 @@ export default function TaskItem({ task, onToggle, onEdit }: TaskItemProps) {
       )}
 
       {/* Edit button — opens modal, never deletes */}
-      <button
-        onClick={() => onEdit(task)}
-        className="w-7 h-7 flex items-center justify-center rounded-lg flex-shrink-0
-          text-[#D2DCB6] hover:text-[#778873] hover:bg-[#F1F3E0]
-          transition-all duration-150"
-        aria-label="Edit task"
-      >
-        <Pencil size={13} />
-      </button>
+      {onEdit && (
+  <button
+    onClick={() => onEdit(task)}
+    className="w-7 h-7 flex items-center justify-center rounded-lg flex-shrink-0
+      text-[#D2DCB6] hover:text-[#778873] hover:bg-[#F1F3E0]
+      transition-all duration-150"
+    aria-label="Edit task"
+  >
+    <Pencil size={13} />
+  </button>
+)}
     </div>
   );
 }

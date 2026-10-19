@@ -1,16 +1,17 @@
 // ConfirmModal — reusable destructive action confirmation
-// Generic enough to use for any confirm/cancel flow across the app
+// Waits for onConfirm (sync or async), shows a spinner, closes only on success
 
 "use client";
 
-import { useEffect } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, X, Loader2 } from "lucide-react";
 
 type ConfirmModalProps = {
   title: string;
   description: string;
   confirmLabel?: string; // defaults to "Confirm"
-  onConfirm: () => void;
+  loadingLabel?: string; // defaults to "Please wait..."
+  onConfirm: () => void | Promise<void>; // throw to keep the modal open
   onClose: () => void;
 };
 
@@ -18,29 +19,43 @@ export default function ConfirmModal({
   title,
   description,
   confirmLabel = "Confirm",
+  loadingLabel = "Please wait...",
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
+  const [loading, setLoading] = useState(false);
 
-  // close on Escape
+  // close on Escape, but not while a request is running
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !loading) onClose();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [onClose]);
+  }, [onClose, loading]);
 
-  const handleConfirm = () => {
-    onConfirm();
-    onClose();
+  const handleConfirm = async () => {
+    if (loading) return; // blocks double-clicks
+    setLoading(true);
+    try {
+      await onConfirm();
+      onClose(); // only close if it worked
+    } catch {
+      // the caller already showed an error; stay open so the user can retry
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const safeClose = () => {
+    if (!loading) onClose();
   };
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4
         bg-[#2d3328]/30 backdrop-blur-sm"
-      onClick={onClose}
+      onClick={safeClose}
     >
       <div
         className="w-full max-w-sm bg-white rounded-2xl border border-[#D2DCB6]
@@ -62,10 +77,12 @@ export default function ConfirmModal({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={safeClose}
+            disabled={loading}
             className="w-7 h-7 flex items-center justify-center rounded-lg
               text-[#778873] hover:bg-[#F1F3E0] hover:text-[#2d3328]
-              transition-all duration-150 flex-shrink-0"
+              disabled:opacity-40 transition-all duration-150 flex-shrink-0"
+            aria-label="Close"
           >
             <X size={15} />
           </button>
@@ -74,21 +91,27 @@ export default function ConfirmModal({
         {/* ── Actions ── */}
         <div className="flex gap-3">
           <button
-            onClick={onClose}
+            onClick={safeClose}
+            disabled={loading}
             className="flex-1 py-2.5 rounded-xl border-2 border-[#D2DCB6]
               text-sm font-semibold text-[#778873]
               hover:border-[#A1BC98] hover:text-[#2d3328]
+              disabled:opacity-50 disabled:cursor-not-allowed
               transition-all duration-150"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
+            disabled={loading}
             className="flex-1 py-2.5 rounded-xl text-sm font-semibold
-              bg-red-400 text-white
-              hover:bg-red-500 transition-all duration-150"
+              flex items-center justify-center gap-2
+              bg-red-400 text-white hover:bg-red-500
+              disabled:opacity-70 disabled:cursor-not-allowed
+              transition-all duration-150"
           >
-            {confirmLabel}
+            {loading && <Loader2 size={14} className="animate-spin" />}
+            {loading ? loadingLabel : confirmLabel}
           </button>
         </div>
       </div>

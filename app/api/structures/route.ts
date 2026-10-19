@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { verify } from "jsonwebtoken";
 import authSchema from "@/lib/modals/auth.modal";
 import structureSchema from "@/lib/modals/structure.modal";
+import habitSchema from "@/lib/modals/habit.modal";
 
 // ------------------------------ Create a Structure for an authenticated user ------------------------------
 export async function POST(request: Request) {
@@ -69,12 +70,14 @@ export async function POST(request: Request) {
         status: 201,
       },
     );
-  }  catch (error: unknown) {
-    
+  } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ message: "Error creating structure", error: errorMessage }),
+      JSON.stringify({
+        message: "Error creating structure",
+        error: errorMessage,
+      }),
       {
         status: 500,
       },
@@ -106,29 +109,39 @@ export async function GET(request: Request) {
       });
     }
 
-    const structures = await structureSchema.find({ userId: user._id });
+    const structures = await structureSchema
+      .find({ userId: user._id })
+      .sort({ createdAt: -1 })
+      .lean();
 
-        if (!structures) {
-      return new Response(JSON.stringify({ message: "Structure not found" }), {
-        status: 404,
-      });
-    }
+    const habits = await habitSchema
+      .find({ structureId: { $in: structures.map((s) => s._id) } })
+      .lean();
+
+    const structuresWithHabits = structures.map((s) => ({
+      ...s,
+      habits: habits.filter(
+        (h) => h.structureId.toString() === s._id.toString(),
+      ),
+    }));
 
     return new Response(
       JSON.stringify({
         message: "Structures fetched successfully",
-        structures,
+        structures: structuresWithHabits,
       }),
       {
         status: 200,
       },
     );
   } catch (error: unknown) {
-    
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ message: "Error fetching structure", error: errorMessage }),
+      JSON.stringify({
+        message: "Error fetching structure",
+        error: errorMessage,
+      }),
       {
         status: 500,
       },

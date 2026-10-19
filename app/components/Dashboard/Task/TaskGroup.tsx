@@ -1,4 +1,4 @@
-// TaskGroup — updated to pass onEdit down to TaskItem
+// TaskGroup — one structure's tasks for today
 
 import { Flame } from "lucide-react";
 import TaskItem from "./TaskItem";
@@ -9,7 +9,6 @@ type TaskGroupProps = {
   structureStreak: number;
   tasks: Task[];
   onToggle: (id: string) => void;
-  onEdit: (task: Task) => void; // passed through to TaskItem
 };
 
 export default function TaskGroup({
@@ -17,7 +16,6 @@ export default function TaskGroup({
   structureStreak,
   tasks,
   onToggle,
-  onEdit,
 }: TaskGroupProps) {
   const completed = tasks.filter((t) => t.completed).length;
 
@@ -47,12 +45,7 @@ export default function TaskGroup({
       {/* ── Task list ── */}
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskItem
-            key={task.id}
-            task={task}
-            onToggle={onToggle}
-            onEdit={onEdit}
-          />
+          <TaskItem key={task.id} task={task} onToggle={onToggle} />
         ))}
       </div>
     </div>

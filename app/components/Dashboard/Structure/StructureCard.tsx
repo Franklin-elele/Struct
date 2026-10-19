@@ -1,17 +1,19 @@
 // StructureCard — full detail card for the Structure page
 // Shows complete habit list (not preview), streak, today's execution, edit button
 "use client"
-import { Flame, Clock, Pencil } from "lucide-react";
-import { Structure }  from "@/app/components/config/structureData";
+import { Flame, Clock, Pencil, ArrowRight, Archive } from "lucide-react";
+import { Structure } from "@/app/components/config/structureData";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
 
 type StructureCardProps = {
   structure: Structure;
-  onEdit: (structure: Structure) => void;
+  onEdit?: (structure: Structure) => void;
+  onArchive?: (structure: Structure) => void;
+  dayNumber?: number;
 };
 
-export default function StructureCard({ structure, onEdit }: StructureCardProps) {
+
+export default function StructureCard({ structure, onEdit, onArchive, dayNumber = 1 }: StructureCardProps) {
   const { habits, currentStreak, todayCompleted } = structure;
   const router = useRouter();
   const totalHabits = habits.length;
@@ -29,6 +31,7 @@ export default function StructureCard({ structure, onEdit }: StructureCardProps)
           <h3 className="text-lg font-bold text-[#2d3328] leading-tight">
             {structure.title}
           </h3>
+          <p className="text-[11px] text-[#a1bc98] font-medium mt-0.5">Day {dayNumber} of 90</p>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -42,15 +45,28 @@ export default function StructureCard({ structure, onEdit }: StructureCardProps)
           )}
 
           {/* Edit button */}
-          <button
-            onClick={() => onEdit(structure)}
-            className="w-8 h-8 flex items-center justify-center rounded-xl
-              text-[#778873] hover:bg-[#F1F3E0] hover:text-[#2d3328]
-              border border-[#D2DCB6] transition-all duration-150"
-            aria-label="Edit structure"
-          >
-            <Pencil size={14} />
-          </button>
+          {onEdit && (
+            <button
+              onClick={() => onEdit(structure)}
+              className="w-8 h-8 flex items-center justify-center rounded-xl
+      text-[#778873] hover:bg-[#F1F3E0] hover:text-[#2d3328]
+      border border-[#D2DCB6] transition-all duration-150"
+              aria-label="Edit structure"
+            >
+              <Pencil size={14} />
+            </button>
+          )}
+          {onArchive && (
+            <button
+              onClick={() => onArchive(structure)}
+              className="w-8 h-8 flex items-center justify-center rounded-xl
+      text-[#778873] hover:bg-[#F1F3E0] hover:text-[#2d3328]
+      border border-[#D2DCB6] transition-all duration-150"
+              aria-label="Archive structure"
+            >
+              <Archive size={14} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -58,9 +74,8 @@ export default function StructureCard({ structure, onEdit }: StructureCardProps)
       <div className="flex items-center justify-between px-3 py-2.5
         bg-[#F1F3E0] rounded-xl border border-[#D2DCB6]">
         <span className="text-xs text-[#778873] font-medium">Today's execution</span>
-        <span className={`text-sm font-bold ${
-          todayCompleted === totalHabits ? "text-[#A1BC98]" : "text-[#2d3328]"
-        }`}>
+        <span className={`text-sm font-bold ${todayCompleted === totalHabits ? "text-[#A1BC98]" : "text-[#2d3328]"
+          }`}>
           {todayCompleted}/{totalHabits} done
         </span>
       </div>
@@ -71,32 +86,32 @@ export default function StructureCard({ structure, onEdit }: StructureCardProps)
           Habits
         </p>
         <ul className="flex flex-col gap-2">
-  {habits.map((habit) => (
-    <li key={habit.id} className="flex items-center gap-2.5">
-      {/* dot — habits are definitions, not checkable items */}
-      <span className="w-1.5 h-1.5 rounded-full bg-[#D2DCB6] flex-shrink-0" />
-      <span className="text-sm flex-1 text-[#4f5c49]">
-        {habit.title}
-      </span>
-      {habit.timeTarget && (
-        <span className="flex items-center gap-1 text-[10px] text-[#778873]
+          {habits.map((habit) => (
+            <li key={habit.id} className="flex items-center gap-2.5">
+              {/* dot — habits are definitions, not checkable items */}
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D2DCB6] flex-shrink-0" />
+              <span className="text-sm flex-1 text-[#4f5c49]">
+                {habit.title}
+              </span>
+              {habit.timeTarget && (
+                <span className="flex items-center gap-1 text-[10px] text-[#778873]
           bg-[#F1F3E0] rounded-full px-1.5 py-0.5 flex-shrink-0">
-          <Clock size={9} />
-          {habit.timeTarget}
-        </span>
-      )}
-    </li>
-  ))}
-</ul>
-<button
-  onClick={() => router.push(`/dashboard/structure/${structure.id}`)}
-  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl
+                  <Clock size={9} />
+                  {habit.timeTarget}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+        <button
+          onClick={() => router.push(`/dashboard/structure/${structure.id}`)}
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl
     border-2 border-[#D2DCB6] text-[#778873] text-sm font-semibold
     hover:border-[#A1BC98] hover:text-[#2d3328] hover:bg-[#F1F3E0]
     transition-all duration-150"
->
-  View details <ArrowRight size={14} />
-</button>
+        >
+          View details <ArrowRight size={14} />
+        </button>
       </div>
     </div>
   );

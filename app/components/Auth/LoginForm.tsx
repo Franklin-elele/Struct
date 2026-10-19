@@ -37,8 +37,9 @@ export default function LoginForm({
   const canSubmit = data.email.length > 0 && data.password.length > 0;
 
   const handleSubmit = async () => {
+    if (isLoggingIn || !canSubmit) return;
+  setIsLoggingIn(true);
     try {
-      setIsLoggingIn(true);
       await toast.promise(login({ email, password }), {
         loading: "Logging in...",
         success: "Logged in successfully!",
@@ -51,6 +52,12 @@ export default function LoginForm({
       setIsLoggingIn(false);
     }
   }
+
+  const handleKeyDown = (e: { key: string; }) => {
+    if (e.key === 'Enter') {
+      handleSubmit(); // Trigger your login logic
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -92,6 +99,7 @@ export default function LoginForm({
           value={data.password}
           onChange={set("password")}
           placeholder="Your password"
+          onKeyDown={handleKeyDown}
           autoComplete="current-password"
           icon={Lock}
         />

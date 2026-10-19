@@ -9,6 +9,7 @@ type InputFieldProps = {
   type?: "text" | "email" | "password";
   value: string;
   onChange: (val: string) => void;
+  onKeyDown?: (e: { key: string; }) => void;
   placeholder?: string;
   autoComplete?: string;
   icon?: LucideIcon; // optional lucide icon component
@@ -20,6 +21,7 @@ export default function InputField({
   value,
   onChange,
   placeholder,
+  onKeyDown,
   autoComplete,
   icon: Icon,
 }: InputFieldProps) {
@@ -44,6 +46,7 @@ export default function InputField({
           type={resolvedType}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
           autoComplete={autoComplete}
           className={`w-full py-3 pr-4 rounded-xl border border-[#D2DCB6] bg-white
