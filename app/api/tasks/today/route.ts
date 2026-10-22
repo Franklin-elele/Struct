@@ -4,6 +4,7 @@ import { verify } from "jsonwebtoken";
 import authSchema from "@/lib/modals/auth.modal";
 import taskSchema from "@/lib/modals/task.modal";
 import { generateTasksForUser } from "@/lib/generateTasks";
+import { getToday } from "@/lib/timezone";
 
 export async function GET(request: Request) {
   try {
@@ -27,17 +28,13 @@ export async function GET(request: Request) {
         status: 404,
       });
     }
+    await generateTasksForUser(user._id.toString(), user.timezone);
 
-    await generateTasksForUser(user._id.toString());
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    const { start, end } = getToday(user.timezone);
 
     const tasks = await taskSchema.find({
       userId: user._id,
-      date: { $gte: todayStart, $lte: todayEnd },
+      date: { $gte: start, $lt: end }, // $lt, because end is tomorrow's first moment
     });
 
     return new Response(JSON.stringify({ tasks }), { status: 200 });

@@ -15,3 +15,6 @@ export function getDaysRemaining(endDate: string) {
     Math.round((startOfDay(new Date(endDate)) - startOfDay(new Date())) / MS_PER_DAY),
   );
 }
+
+export const getBrowserTimezone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone;

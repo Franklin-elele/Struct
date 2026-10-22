@@ -8,28 +8,12 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import { sidebarLinks } from "../config/sidebarLinks";
-import { getCurrentUser } from "@/lib/services/auth.service";
+import { useUser } from "@/app/components/Dashboard/UserContext";
 
 export default function Sidebar() {
+  const { user } = useUser();
   // collapsed = icon-only mode, desktop only
   const [collapsed, setCollapsed] = useState(false);
-  const [userName, setUserName] = useState<{ firstname: string; lastname: string } | null>(null);
-
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await getCurrentUser();
-        if (res.data) {
-          const { firstname, lastname } = res.data.user;
-          setUserName({ firstname, lastname });
-        }
-      } catch (error) {
-        console.error("Error fetching user: ", error);
-      }
-    }
-    fetchUser();
-  }, [])
 
   useEffect(() => {
     setCollapsed(localStorage.getItem("sidebarCollapsed") === "true");
@@ -75,17 +59,23 @@ export default function Sidebar() {
       {/* ── User profile ── */}
       <div className={`flex items-center gap-3 px-4 py-4 border-b border-[#D2DCB6] flex-shrink-0
         ${collapsed ? "justify-center px-2" : ""}`}
-      >
-        <div className="w-9 h-9 rounded-xl bg-[#D2DCB6] flex items-center justify-center flex-shrink-0">
-          <span className="text-sm font-bold text-[#778873]"> {userName?.firstname.charAt(0).toUpperCase()}</span>
+      ><div className="w-9 h-9 rounded-xl bg-[#D2DCB6] overflow-hidden flex items-center justify-center flex-shrink-0">
+          {user?.avatarUrl ? (
+            <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-sm font-bold text-[#778873]">
+              {user?.firstname.charAt(0).toUpperCase()}
+            </span>
+          )}
         </div>
         {!collapsed && (
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#2d3328] truncate">  {userName ? `${userName.firstname} ${userName.lastname}` : ""}
+            <p className="text-sm font-semibold text-[#2d3328] truncate">
+              {user ? `${user.firstname} ${user.lastname}` : ""}
             </p>
             <p className="text-xs text-[#a1bc98] truncate">Active</p>
           </div>
-        )} 
+        )}
       </div>
 
       {/* ── Nav links ── */}

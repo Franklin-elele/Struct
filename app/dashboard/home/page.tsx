@@ -17,8 +17,8 @@ import { Info, ArrowRight, Layers } from "lucide-react"; import {
 } from "@/lib/services/structure.service";
 import { getTodayTasks } from "@/lib/services/task.service";
 import { getCurrentUser } from "@/lib/services/auth.service";
+import { FREE_LIMIT } from "@/lib/constants";
 import {
-  MAX_STRUCTURES,
   type Structure as CardStructure,
   type Stats,
 } from "@/app/components/config/mockData";
@@ -61,8 +61,7 @@ function MobileCarousel({ children }: { children: React.ReactNode[] }) {
     align: "start",
   });
   const [activeIndex, setActiveIndex] = useState(0);
-  const [tasks, setTasks] = useState<ApiTask[]>([]);
-  const toggleTask = useToggleTask(setTasks);
+
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -255,7 +254,7 @@ export default function HomePage() {
         ) : (
           <>
             {/* Focus banner — shown only when user is at structure limit */}
-            {activeCount >= MAX_STRUCTURES && (
+            {activeCount >= FREE_LIMIT && (
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#F1F3E0] border border-[#D2DCB6]">
                 <Info
                   size={16}
@@ -265,7 +264,7 @@ export default function HomePage() {
                   <span className="font-semibold text-[#2d3328]">
                     Struct is designed for focus.
                   </span>{" "}
-                  You can only run 2 structures at a time.
+                    You can run 1 structure at a time on the free plan.
                 </p>
               </div>
             )}
@@ -275,6 +274,7 @@ export default function HomePage() {
               <MobileCarousel>
                 <StructureCard
                   structure={primaryStructure}
+                  dayNumber={dayNumber} 
                 />
                 <StatsCard stats={stats} daysRemaining={daysRemaining} />
               </MobileCarousel>

@@ -1,21 +1,16 @@
 import structureSchema from "@/lib/modals/structure.modal";
 import habitSchema from "@/lib/modals/habit.modal";
 import taskSchema from "@/lib/modals/task.modal";
+import { getToday } from "@/lib/timezone";
 
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-function isHabitDueToday(habit: any, today: Date) {
+function isHabitDueToday(habit: any, dayName: string) {
   if (habit.frequency === "daily") return true;
-  if (habit.frequency === "custom") {
-    const todayName = DAY_NAMES[today.getDay()];
-    return habit.customDays?.includes(todayName);
-  }
+  if (habit.frequency === "custom") return !!habit.customDays?.includes(dayName);
   return false;
 }
 
-export async function generateTasksForUser(userId: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+export async function generateTasksForUser(userId: string, timezone?: string | null) {
+  const { start: today, dayName } = getToday(timezone);
 
   const activeStructures = await structureSchema.find({ userId, status: "active" });
   const structureIds = activeStructures.map((s) => s._id);
@@ -23,20 +18,20 @@ export async function generateTasksForUser(userId: string) {
   const habits = await habitSchema.find({ structureId: { $in: structureIds } });
 
   for (const habit of habits) {
-  if (!isHabitDueToday(habit, today)) continue;
+    if (!isHabitDueToday(habit, dayName)) continue;
 
-  await taskSchema.updateOne(
-    { habitId: habit._id, date: today },
-    {
-      $set: { duration: habit.duration ?? "" },
-      $setOnInsert: {
-        structureId: habit.structureId,
-        userId,
-        title: habit.title,
-        completed: false,
+    await taskSchema.updateOne(
+      { habitId: habit._id, date: today },
+      {
+        $set: { duration: habit.duration ?? "" },
+        $setOnInsert: {
+          structureId: habit.structureId,
+          userId,
+          title: habit.title,
+          completed: false,
+        },
       },
-    },
-    { upsert: true },
-  );
-}
+      { upsert: true },
+    );
+  }
 }

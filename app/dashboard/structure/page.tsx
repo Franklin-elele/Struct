@@ -28,9 +28,11 @@ import {
 import { getTodayTasks } from "@/lib/services/task.service";
 import { getDayNumber } from "@/lib/dates";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import { FREE_LIMIT } from "@/lib/constants";
+
 
 // Free plan = 1 active structure (the backend enforces this too)
-const FREE_LIMIT = 1;
+// const FREE_LIMIT = 1;
 
 type ApiHabit = { _id: string; title: string; duration?: string };
 

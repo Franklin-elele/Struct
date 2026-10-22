@@ -1,5 +1,6 @@
 import connectDB from "@/lib/db";
 import authSchema from "@/lib/modals/auth.modal";
+import { isValidZone } from "@/lib/timezone";
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
@@ -7,7 +8,7 @@ export async function POST(request: Request) {
     const cookieStore = await cookies();
     await connectDB();
 
-    const { firstname, lastname, email, password } = await request.json();
+    const { firstname, lastname, email, password,timezone } = await request.json();
     if (!firstname || !lastname || !email || !password) {
       return new Response(
         JSON.stringify({ message: "All fields are required" }),
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
       lastname,
       email,
       password,
+      timezone: isValidZone(timezone) ? timezone : undefined,
     });
 
     await newUser.save();

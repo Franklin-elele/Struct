@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/api";
 import CompletionScreen from "@/app/components/Auth/CompletionScreen";
 import StepIndicator from "@/app/components/Auth/StepIndicator";
+import { getBrowserTimezone } from "@/lib/dates";
 
 
 // ── Shared onboarding state shape ──
@@ -73,6 +74,7 @@ export default function OnboardingContainer() {
             lastname: state.signup.lastName,
             email: state.signup.email,
             password: state.signup.password,
+            timezone: getBrowserTimezone()
           }),
         {
           loading: "Setting up your account...",

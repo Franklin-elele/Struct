@@ -1,120 +1,99 @@
 "use client";
 
 // app/dashboard/profile/page.tsx
-// Added: SystemSnapshotCard, dark mode toggle, multiple structures toggle (Premium), Free Plan badge
+// Real user, real snapshot. Edit, avatar upload and dark mode wait on backend/theme work.
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Pencil, Camera, Bell, LogOut, LucideIcon,
-  Flame, CheckSquare, Layers, Moon, Lock, ArrowRight,
+  LogOut, Layers, CheckSquare, CalendarDays, Moon, Lock, ArrowRight, UserX,
+  type LucideIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import ToggleSwitch from "@/app/components/Dashboard/ToggleSwitch";
 import LogoutModal from "@/app/components/Dashboard/logoutModal";
+import Loader from "@/app/components/Loader";
+import EmptyState from "@/app/components/Dashboard/EmptyState";
+import { getCurrentUser } from "@/lib/services/auth.service";
+import { getStructures } from "@/lib/services/structure.service";
+import { getTodayTasks } from "@/lib/services/task.service";
+import { getDayNumber } from "@/lib/dates";
+import ProfileEditModal, { type ProfileUser } from "@/app/components/Dashboard/ProfileEditModal";
+import { Pencil } from "lucide-react";
+import { useUser } from "@/app/components/Dashboard/UserContext";
 
-const mockUser = {
-  firstName: "Ebuka",
-  lastName:  "Elele",
-  email:     "eleleebuka555@gmail.com",
-  plan:      "free", // "free" | "premium"
-};
 
-// mock snapshot — replace with real data later
-const mockSnapshot = {
-  activeStructures: 2,
-  currentStreak:    7,
-  todayCompleted:   3,
-  todayTotal:       7,
+// Everyone is on the free plan until billing exists
+// TODO: read this from the user's subscriptionTier once that field is added
+const isPremium: boolean = false;
+
+type ApiUser = { firstname: string; lastname: string; email: string };
+type ApiStructure = {
+  _id: string;
+  title: string;
+  startDate: string;
+  status: "active" | "archived";
+  isCurrent: boolean;
 };
+type ApiTask = { completed: boolean };
 
 // ─────────────────────────────────────────────
-// ProfileCard — avatar, name, email, plan badge
+// ProfileCard — avatar initials, name, email, plan
 // ─────────────────────────────────────────────
-function ProfileCard() {
+function ProfileCard({ user, onEdit }: { user: ProfileUser; onEdit: () => void }) {
   const router = useRouter();
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const initials = `${mockUser.firstName[0]}${mockUser.lastName[0]}`.toUpperCase();
-  const fullName = `${mockUser.firstName} ${mockUser.lastName}`;
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setAvatarSrc(reader.result as string);
-    reader.readAsDataURL(file);
-  };
+  const initials = `${user.firstname.charAt(0)}${user.lastname.charAt(0)}`.toUpperCase();
 
   return (
     <div className="bg-white rounded-2xl border border-[#D2DCB6]
       shadow-[4px_4px_0px_0px_#d2dcb6] p-6 flex flex-col sm:flex-row items-center gap-5">
 
-      {/* Avatar */}
-      <div className="relative flex-shrink-0">
-        <div className="w-20 h-20 rounded-full overflow-hidden flex items-center
-          justify-center text-2xl font-bold bg-[#F1F3E0] text-[#778873]">
-          {avatarSrc
-            ? <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
-            : initials
-          }
-        </div>
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full
-            flex items-center justify-center bg-[#2d3328] text-[#F1F3E0]
-            shadow-md hover:scale-110 transition-all duration-150"
-          aria-label="Change profile photo"
-        >
-          <Camera size={13} />
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleImageChange}
-        />
+      <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center
+        flex-shrink-0 text-2xl font-bold bg-[#F1F3E0] text-[#778873]">
+        {user.avatarUrl ? (
+          <img src={user.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+        ) : (
+          initials
+        )}
       </div>
 
-      {/* Name + email + plan */}
       <div className="flex-1 min-w-0 text-center sm:text-left">
-        <p className="text-lg font-bold text-[#2d3328] truncate">{fullName}</p>
-        <p className="text-sm text-[#778873] truncate mt-0.5">{mockUser.email}</p>
+        <p className="text-lg font-bold text-[#2d3328] truncate">
+          {user.firstname} {user.lastname}
+        </p>
+        <p className="text-sm text-[#778873] truncate mt-0.5">{user.email}</p>
         <div className="flex items-center gap-2 mt-2 justify-center sm:justify-start flex-wrap">
           <span className="text-[10px] font-semibold uppercase tracking-widest
             px-2.5 py-1 rounded-full bg-[#F1F3E0] text-[#778873]">
-            Active · Streak going
+            {isPremium ? "Premium" : "Free plan"}
           </span>
-          {/* Free plan badge + upgrade link */}
-          {mockUser.plan === "free" && (
+          {!isPremium && (
             <button
               onClick={() => router.push("/upgrade")}
               className="flex items-center gap-1 text-[10px] font-semibold
                 text-[#A1BC98] hover:text-[#2d3328] transition-colors duration-150"
             >
-              Free Plan · Upgrade <ArrowRight size={10} />
+              Upgrade <ArrowRight size={10} />
             </button>
           )}
         </div>
       </div>
 
-      {/* Edit button */}
       <button
+        onClick={onEdit}
         className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
           border border-[#D2DCB6] text-[#778873] bg-[#F1F3E0]
           hover:border-[#A1BC98] hover:text-[#2d3328] transition-all duration-150
           self-start sm:self-center"
       >
-        <Pencil size={13} />
-        Edit
+        <Pencil size={13} /> Edit
       </button>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// SystemSnapshotCard — quick stats at a glance
+// SystemSnapshotCard — quick numbers at a glance
 // ─────────────────────────────────────────────
 function SnapshotCell({
   icon: Icon,
@@ -138,7 +117,17 @@ function SnapshotCell({
   );
 }
 
-function SystemSnapshotCard() {
+function SystemSnapshotCard({
+  activeCount,
+  dayNumber,
+  done,
+  total,
+}: {
+  activeCount: number;
+  dayNumber: number | null;
+  done: number;
+  total: number;
+}) {
   return (
     <div className="bg-white rounded-2xl border border-[#D2DCB6]
       shadow-[4px_4px_0px_0px_#d2dcb6] p-5 flex flex-col gap-3">
@@ -146,21 +135,13 @@ function SystemSnapshotCard() {
         System Snapshot
       </p>
       <div className="flex items-start divide-x divide-[#F1F3E0]">
+        <SnapshotCell icon={Layers} value={`${activeCount}`} label="Active structures" />
         <SnapshotCell
-          icon={Layers}
-          value={`${mockSnapshot.activeStructures}`}
-          label="Active structures"
+          icon={CalendarDays}
+          value={dayNumber ? `Day ${dayNumber}` : "—"}
+          label="Current structure"
         />
-        <SnapshotCell
-          icon={Flame}
-          value={`${mockSnapshot.currentStreak}d`}
-          label="Current streak"
-        />
-        <SnapshotCell
-          icon={CheckSquare}
-          value={`${mockSnapshot.todayCompleted}/${mockSnapshot.todayTotal}`}
-          label="Done today"
-        />
+        <SnapshotCell icon={CheckSquare} value={`${done}/${total}`} label="Done today" />
       </div>
     </div>
   );
@@ -200,13 +181,10 @@ function SettingsRow({
 }
 
 // ─────────────────────────────────────────────
-// PreferencesCard — reminders, dark mode, multiple structures
+// PreferencesCard
 // ─────────────────────────────────────────────
 function PreferencesCard() {
   const router = useRouter();
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode]           = useState(false);
-  const isPremium = mockUser.plan === "premium";
 
   return (
     <div className="bg-white rounded-2xl border border-[#D2DCB6]
@@ -216,37 +194,32 @@ function PreferencesCard() {
         Preferences
       </p>
 
-      {/* Reminders */}
-     
-
-      {/* Dark mode */}
+      {/* Dark mode: placeholder until the theme work is done */}
       <SettingsRow
         icon={Moon}
-        label="Dark Mode"
+        label="Dark mode"
         description="Switch appearance"
         right={
-          <ToggleSwitch
-            enabled={darkMode}
-            onToggle={() => setDarkMode((d) => !d)}
-            ariaLabel="Toggle dark mode"
-          />
+          <span className="text-[10px] font-semibold uppercase tracking-widest
+            text-[#a1bc98] bg-[#F1F3E0] border border-[#D2DCB6] rounded-lg px-2.5 py-1.5">
+            Soon
+          </span>
         }
       />
 
-      {/* Multiple structures — Premium only */}
+      {/* Multiple structures: Premium only */}
       <SettingsRow
         icon={Layers}
-        label="Multiple Structures"
+        label="Multiple structures"
         description={isPremium ? "Run parallel structures" : "Premium feature"}
         right={
           isPremium ? (
             <ToggleSwitch
               enabled={true}
-              onToggle={() => {}}
+              onToggle={() => { }}
               ariaLabel="Toggle multiple structures"
             />
           ) : (
-            // locked for free users — redirect to upgrade
             <button
               onClick={() => router.push("/upgrade")}
               className="flex items-center gap-1.5 text-[10px] font-semibold
@@ -276,11 +249,7 @@ function AccountCard() {
         text-[#a1bc98] pt-4 pb-2">
         Account
       </p>
-      {showLogoutModal && (
-        <LogoutModal
-          onClose={() => setShowLogoutModal(false)}
-        />
-      )}
+      {showLogoutModal && <LogoutModal onClose={() => setShowLogoutModal(false)} />}
       <SettingsRow
         icon={LogOut}
         label="Log out"
@@ -305,18 +274,85 @@ function AccountCard() {
 // ProfilePage
 // ─────────────────────────────────────────────
 export default function ProfilePage() {
+  // const [user, setUser] = useState<ProfileUser | null>(null);
+  const { user, loading: userLoading, setUser, refresh } = useUser();
+  const [editing, setEditing] = useState(false);
+  const [structures, setStructures] = useState<ApiStructure[]>([]);
+  const [tasks, setTasks] = useState<ApiTask[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Separate try blocks so one failing call can't hide the others
+  const load = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const res = await getStructures();
+      setStructures(res.data.structures);
+    } catch (error) {
+      console.error("Error loading structures: ", error);
+    }
+
+    try {
+      const res = await getTodayTasks();
+      setTasks(res.data.tasks);
+    } catch (error) {
+      console.error("Error loading tasks: ", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const active = structures.filter((s) => s.status === "active");
+  const primary = active.find((s) => s.isCurrent) ?? active[0];
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-5 max-w-lg mx-auto">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-[#2d3328]">Profile</h2>
-          <p className="text-sm mt-0.5 text-[#778873]">Manage your account and preferences.</p>
+          <p className="text-sm mt-0.5 text-[#778873]">
+            Manage your account and preferences.
+          </p>
         </div>
 
-        <ProfileCard />
-        <SystemSnapshotCard />
-        <PreferencesCard />
-        <AccountCard />
+        {editing && user && (
+          <ProfileEditModal
+            user={user}
+            onSaved={(updated) => setUser(updated)}
+            onClose={() => setEditing(false)}
+          />
+        )}
+
+        {isLoading || userLoading ? (
+          <Loader />
+        ) : !user ? (
+          <EmptyState
+            icon={UserX}
+            title="Couldn't load your profile"
+            description="Something went wrong while loading your account."
+            actionLabel="Try again"
+            onAction={() => {
+              refresh();
+              load();
+            }}
+          />
+        ) : (
+          <>
+            <ProfileCard user={user} onEdit={() => setEditing(true)} />
+            <SystemSnapshotCard
+              activeCount={active.length}
+              dayNumber={primary ? getDayNumber(primary.startDate) : null}
+              done={tasks.filter((t) => t.completed).length}
+              total={tasks.length}
+            />
+            <PreferencesCard />
+            <AccountCard />
+          </>
+        )}
 
         <p className="text-center text-[10px] font-medium tracking-widest uppercase pb-2 text-[#D2DCB6]">
           Struct V1 · MVP

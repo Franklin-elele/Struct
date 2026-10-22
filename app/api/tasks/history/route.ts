@@ -4,10 +4,10 @@ import { verify } from "jsonwebtoken";
 import authSchema from "@/lib/modals/auth.modal";
 import taskSchema from "@/lib/modals/task.modal";
 import structureSchema from "@/lib/modals/structure.modal";
+import { getToday, getDayStartDaysAgo, safeZone } from "@/lib/timezone";
 
 // Tasks are stored at midnight of the server's clock, but MongoDB groups
 // by UTC unless told otherwise. This keeps each task on the right day.
-const APP_TIMEZONE = "Africa/Lagos";
 
 export async function GET(request: Request) {
   try {
@@ -16,26 +16,34 @@ export async function GET(request: Request) {
     const accessToken = cookieStore.get("accessToken")?.value;
 
     if (!accessToken) {
-      return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
+      return new Response(JSON.stringify({ message: "Unauthorized" }), {
+        status: 401,
+      });
     }
 
-    const decoded = verify(accessToken, process.env.ACCESS_TOKEN_SECRET!) as { id: string };
+    const decoded = verify(accessToken, process.env.ACCESS_TOKEN_SECRET!) as {
+      id: string;
+    };
     const user = await authSchema.findById(decoded.id).select("-password");
 
     if (!user) {
-      return new Response(JSON.stringify({ message: "User not found" }), { status: 404 });
+      return new Response(JSON.stringify({ message: "User not found" }), {
+        status: 404,
+      });
     }
 
     // ?days=30 (default 30, minimum 1, maximum 90)
     const { searchParams } = new URL(request.url);
     const requested = parseInt(searchParams.get("days") ?? "30", 10);
-    const days = Math.min(Math.max(Number.isNaN(requested) ? 30 : requested, 1), 90);
+    const days = Math.min(
+      Math.max(Number.isNaN(requested) ? 30 : requested, 1),
+      90,
+    );
 
     // Past days only: from N days ago up to, but not including, today
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const since = new Date(todayStart);
-    since.setDate(since.getDate() - days);
+    const zone = safeZone(user.timezone);
+    const todayStart = getToday(zone).start;
+    const since = getDayStartDaysAgo(zone, days);
 
     // Stage 1: keep this user's tasks in the range
     // Stage 2: one group per (day, structure), counting total and completed
@@ -44,7 +52,13 @@ export async function GET(request: Request) {
       {
         $group: {
           _id: {
-            day: { $dateToString: { format: "%Y-%m-%d", date: "$date", timezone: APP_TIMEZONE } },
+            day: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$date",
+                timezone: zone,
+              },
+            },
             structureId: "$structureId",
           },
           completed: { $sum: { $cond: ["$completed", 1, 0] } },
@@ -58,17 +72,23 @@ export async function GET(request: Request) {
       .find({ _id: { $in: rows.map((r) => r._id.structureId) } })
       .select("title")
       .lean();
-    const titleById = new Map(structures.map((s) => [s._id.toString(), s.title]));
+    const titleById = new Map(
+      structures.map((s) => [s._id.toString(), s.title]),
+    );
 
     // Gather the rows into one record per day
-    const byDay = new Map<string, { title: string; completed: number; total: number }[]>();
+    const byDay = new Map<
+      string,
+      { title: string; completed: number; total: number }[]
+    >();
     let totalCompleted = 0;
     let totalTasks = 0;
 
     for (const r of rows) {
       const list = byDay.get(r._id.day) ?? [];
       list.push({
-        title: titleById.get(r._id.structureId.toString()) ?? "Deleted structure",
+        title:
+          titleById.get(r._id.structureId.toString()) ?? "Deleted structure",
         completed: r.completed,
         total: r.total,
       });
@@ -85,12 +105,16 @@ export async function GET(request: Request) {
     const summary = {
       bestStreak: 0, // stubbed until the Stats backend defines the streak rule
       totalCompleted,
-      avgCompletion: totalTasks ? Math.round((totalCompleted / totalTasks) * 100) : 0,
+      avgCompletion: totalTasks
+        ? Math.round((totalCompleted / totalTasks) * 100)
+        : 0,
     };
 
     return new Response(JSON.stringify({ records, summary }), { status: 200 });
   } catch (error) {
     console.error("Error fetching history: ", error);
-    return new Response(JSON.stringify({ message: "Error fetching history" }), { status: 500 });
+    return new Response(JSON.stringify({ message: "Error fetching history" }), {
+      status: 500,
+    });
   }
 }

@@ -8,6 +8,7 @@ import { useNavigate } from "@/hooks/useNavigate";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import Loader from "@/app/components/Loader";
+import { getBrowserTimezone } from "@/lib/dates";
 
 
 type LoginData = {
@@ -40,7 +41,7 @@ export default function LoginForm({
     if (isLoggingIn || !canSubmit) return;
   setIsLoggingIn(true);
     try {
-      await toast.promise(login({ email, password }), {
+      await toast.promise(login({ email, password, timezone: getBrowserTimezone() }), {
         loading: "Logging in...",
         success: "Logged in successfully!",
         error: (err) => `Login failed: ${err.response?.data?.message || "Login failed"}`

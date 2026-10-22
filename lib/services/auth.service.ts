@@ -6,11 +6,13 @@ export type SignUpPayload = {
   lastname: string;
   email: string;
   password: string;
+  timezone?: string;
 };
 
 export type LoginPayload = {
   email: string;
   password: string;
+  timezone?: string;
 };
 
 export const signUp = async (data: SignUpPayload) =>
@@ -22,5 +24,8 @@ export const login = async (data: LoginPayload) =>
 export const logout = async () => api.post("api/auth/logout");
 
 export const getCurrentUser = async () => api.get("api/user/me");
+
+export const updateProfile = async (data: FormData) =>
+    api.patch("api/user/me", data);
 
 

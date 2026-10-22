@@ -2,13 +2,15 @@ import connectDB from "@/lib/db";
 import authSchema from "@/lib/modals/auth.modal";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { isValidZone } from "@/lib/timezone";
+
 
 export async function POST(request: Request) {
   try {
     await connectDB();
     const cookieStore = await cookies();
 
-    const { email, password } = await request.json();
+    const { email,password,timezone } = await request.json();
     if (!email || !password) {
       return new Response(
         JSON.stringify({ message: "Email and password are required" }),
@@ -28,6 +30,7 @@ export async function POST(request: Request) {
         status: 401,
       });
     }
+    if (isValidZone(timezone)) user.timezone = timezone;
 
     const accessToken = await user.generateAccessToken();
     const refreshToken = await user.generateRefreshToken();
