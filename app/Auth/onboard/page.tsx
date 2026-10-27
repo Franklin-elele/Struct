@@ -45,6 +45,8 @@ export default function OnboardingContainer() {
   const [step, setStep] = useState(0);
   const [state, setState] = useState<OnboardingState>(INITIAL_STATE);
   const [done, setDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
 
   const totalSteps = STEPS.length;
 
@@ -63,19 +65,21 @@ export default function OnboardingContainer() {
 
   const handleNext = async () => {
     if (step < totalSteps - 1) {
-        setStep((s) => s + 1);
-        return; // ← stop here
+      setStep((s) => s + 1);
+      return; // ← stop here
     }
 
+    if (submitting) return;
+    setSubmitting(true);
     try {
       const res = await toast.promise(
-          signUp({
-            firstname: state.signup.firstName,
-            lastname: state.signup.lastName,
-            email: state.signup.email,
-            password: state.signup.password,
-            timezone: getBrowserTimezone()
-          }),
+        signUp({
+          firstname: state.signup.firstName,
+          lastname: state.signup.lastName,
+          email: state.signup.email,
+          password: state.signup.password,
+          timezone: getBrowserTimezone()
+        }),
         {
           loading: "Setting up your account...",
           success: "You're all set!",
@@ -91,15 +95,15 @@ export default function OnboardingContainer() {
         }
       )
 
-const structureId = structureRes.data.structure._id;
+      const structureId = structureRes.data.structure._id;
       // Create habits
       for (const habit of state.habits) {
         if (habit.title.trim().length === 0) continue; // skip empty habits
         await createHabit(structureId, {
-  title: habit.title,
-  frequency: "daily",
-  duration: habit.timeTarget,
-});
+          title: habit.title,
+          frequency: "daily",
+          duration: habit.timeTarget,
+        });
       }
 
       console.log("Sign up response:", res.data);
@@ -107,7 +111,9 @@ const structureId = structureRes.data.structure._id;
       setDone(true)
     } catch (error) {
       console.error("Sign up error: ", error);
-    }
+    } finally {
+  setSubmitting(false);
+}
   };
 
   const handleBack = () => {

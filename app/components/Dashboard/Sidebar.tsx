@@ -9,11 +9,17 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import { sidebarLinks } from "../config/sidebarLinks";
 import { useUser } from "@/app/components/Dashboard/UserContext";
+import { LogOut } from "lucide-react";
+import LogoutModal from "./logoutModal";
+
+
 
 export default function Sidebar() {
   const { user } = useUser();
   // collapsed = icon-only mode, desktop only
   const [collapsed, setCollapsed] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
+
 
   useEffect(() => {
     setCollapsed(localStorage.getItem("sidebarCollapsed") === "true");
@@ -84,6 +90,21 @@ export default function Sidebar() {
           <SidebarItem key={link.href} {...link} collapsed={collapsed} />
         ))}
       </nav>
+
+      <div className="px-3 pb-3 flex-shrink-0">
+  <button
+    onClick={() => setShowLogout(true)}
+    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+      text-[#778873] hover:bg-red-50 hover:text-red-500 transition-all duration-150
+      ${collapsed ? "justify-center" : ""}`}
+    aria-label="Log out"
+  >
+    <LogOut size={16} />
+    {!collapsed && "Log out"}
+  </button>
+</div>
+
+{showLogout && <LogoutModal onClose={() => setShowLogout(false)} />}
 
       {/* ── Version tag ── */}
       {!collapsed && (

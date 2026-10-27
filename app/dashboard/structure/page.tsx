@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Plus, Info, Layers } from "lucide-react";
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+// import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import Loader from "@/app/components/Loader";
 import EmptyState from "@/app/components/Dashboard/EmptyState";
 import StructureCard from "@/app/components/Dashboard/Structure/StructureCard";
@@ -193,7 +193,7 @@ export default function StructurePage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       {modalMode !== null && (
         <StructureModal
           initial={
@@ -311,6 +311,6 @@ export default function StructurePage() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

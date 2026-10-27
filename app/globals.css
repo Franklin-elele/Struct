@@ -97,6 +97,22 @@
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 }
+/* 
+@keyframes name-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.name-letter {
+  display: inline-block;
+  opacity: 0;
+  animation: name-rise 0.4s ease-out forwards;
+}
+
+/* people who turn off motion in their system settings just see the name */
+/* @media (prefers-reduced-motion: reduce) {
+  .name-letter { animation: none; opacity: 1; }
+}  */
 
 /* ──────────────────────────────────────────
    COMPONENTS

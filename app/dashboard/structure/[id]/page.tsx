@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Clock, ArrowLeft, CalendarDays, TrendingUp, Layers, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+// import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import Loader from "@/app/components/Loader";
 import EmptyState from "@/app/components/Dashboard/EmptyState";
 import StructureModal, {
@@ -103,15 +103,15 @@ export default function StructureDetailPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      <>
         <Loader />
-      </DashboardLayout>
+      </>
     );
   }
 
   if (!structure) {
     return (
-      <DashboardLayout>
+      <>
         <div className="max-w-2xl mx-auto">
           <EmptyState
             icon={Layers}
@@ -121,7 +121,7 @@ export default function StructureDetailPage() {
             onAction={() => router.push("/dashboard/structure")}
           />
         </div>
-      </DashboardLayout>
+      </>
     );
   }
 
@@ -186,7 +186,8 @@ export default function StructureDetailPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
+
       {showModal && (
         <StructureModal
           initial={{
@@ -309,6 +310,6 @@ export default function StructureDetailPage() {
           )}
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

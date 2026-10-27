@@ -12,6 +12,8 @@ interface IUser extends Document {
   refreshToken: string | null;
   generateAccessToken: () => Promise<string>;
   generateRefreshToken: () => Promise<string>;
+  resetPasswordHash?: string | null;
+  resetPasswordExpires?: Date | null;
 }
 
 const authModalSchema = new Schema<IUser>(
@@ -54,7 +56,18 @@ const authModalSchema = new Schema<IUser>(
     timezone: {
     type: String,
     default: "UTC",
-}, 
+  },
+  resetPasswordHash: { 
+    type: String, 
+    default: null, 
+    select: false 
+  },
+  resetPasswordExpires: { 
+    type: Date, 
+    default: null, 
+    select: false 
+
+  },
   },
   { timestamps: true },
 );

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Ubuntu } from "next/font/google";
 // @ts-ignore: CSS side-effect imports are handled by Next.js
 import "./globals.css";
@@ -19,6 +19,11 @@ export const metadata: Metadata = {
     "A minimal personal-growth accountability app to help you build discipline through consistent daily action.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export default function RootLayout({
   children,

@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import Loader from "@/app/components/Loader";
 import { getBrowserTimezone } from "@/lib/dates";
+import axios from "axios";
 
 
 type LoginData = {
@@ -38,21 +39,24 @@ export default function LoginForm({
   const canSubmit = data.email.length > 0 && data.password.length > 0;
 
   const handleSubmit = async () => {
-    if (isLoggingIn || !canSubmit) return;
+  if (isLoggingIn || !canSubmit) return;
   setIsLoggingIn(true);
-    try {
-      await toast.promise(login({ email, password, timezone: getBrowserTimezone() }), {
-        loading: "Logging in...",
-        success: "Logged in successfully!",
-        error: (err) => `Login failed: ${err.response?.data?.message || "Login failed"}`
-      });
-      navigate("/dashboard/home");
-    } catch (error) {
-      console.error("Login error: ", error);
-    } finally {
-      setIsLoggingIn(false);
-    }
+  const toastId = toast.loading("Logging in...");
+  try {
+    await login({ email, password, timezone: getBrowserTimezone() });
+    toast.success("Logged in. Opening your dashboard...", { id: toastId, duration: 5000 });
+    navigate("/dashboard/home");
+    // isLoggingIn stays true: the button keeps its spinner until the page changes
+  } catch (error) {
+    toast.error(
+      axios.isAxiosError(error)
+        ? error.response?.data?.message ?? "Login failed"
+        : "Login failed",
+      { id: toastId },
+    );
+    setIsLoggingIn(false);
   }
+};
 
   const handleKeyDown = (e: { key: string; }) => {
     if (e.key === 'Enter') {

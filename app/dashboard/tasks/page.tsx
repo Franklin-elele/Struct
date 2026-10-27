@@ -6,7 +6,7 @@
 import { useState, useEffect } from "react";
 import { Zap, ListChecks } from "lucide-react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+// import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import Loader from "@/app/components/Loader";
 import EmptyState from "@/app/components/Dashboard/EmptyState";
 import ProgressHeader from "@/app/components/Dashboard/Task/ProgressHeader";
@@ -86,7 +86,7 @@ export default function TasksPage() {
     .filter((g) => g.tasks.length > 0);
 
   return (
-    <DashboardLayout>
+    <>
       {focusMode && (
         <FocusMode
           tasks={viewTasks}
@@ -149,6 +149,6 @@ export default function TasksPage() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

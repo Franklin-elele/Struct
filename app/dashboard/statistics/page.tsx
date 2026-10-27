@@ -5,7 +5,7 @@
 // All numbers derived from tasks, not structures
 // Structures only appear here for streak/rate context
 
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+// import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import StatCard from "@/app/components/Dashboard/Stats/StatCard";
 import StructureStatCard from "@/app/components/Dashboard/Stats/StructureStatCard";
 import WeeklyChart from "@/app/components/Dashboard/Stats/WeeklyChart";
@@ -27,7 +27,7 @@ const hasData = mockStructureStats.length > 0;
 
 export default function StatisticsPage() {
   return (
-    <DashboardLayout>
+    <>
       <div className="flex flex-col gap-6 max-w-3xl mx-auto">
 
         {/* ── Page header ── */}
@@ -166,6 +166,6 @@ export default function StatisticsPage() {
         )}
 
       </div>
-    </DashboardLayout>
+    </>
   );
 }

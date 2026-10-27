@@ -4,15 +4,11 @@
 "use client";
 
 import { useState } from "react";
-import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { sidebarLinks } from "../config/sidebarLinks";
 import { Bell } from "lucide-react";
 
 
-type HeaderProps = {
-  onMobileMenuOpen: () => void;
-};
 
 export default function Header() {
   const pathname = usePathname();

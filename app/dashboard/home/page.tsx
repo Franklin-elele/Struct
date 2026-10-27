@@ -7,11 +7,11 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+// import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import StructureCard from "@/app/components/Dashboard/StructureCard";
 import StatsCard from "@/app/components/Dashboard/StatsCard";
 import TaskSection from "@/app/components/Dashboard/Task/TaskSection";
-import { Info, ArrowRight, Layers } from "lucide-react"; import {
+import { Info, ArrowRight } from "lucide-react"; import {
   getStructures,
   getStructureById,
 } from "@/lib/services/structure.service";
@@ -230,7 +230,7 @@ export default function HomePage() {
   }));
 
   return (
-    <DashboardLayout>
+    <>
       <div className="flex flex-col gap-6 max-w-5xl mx-auto">
         {/* Greeting */}
         <div>
@@ -323,6 +323,6 @@ export default function HomePage() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

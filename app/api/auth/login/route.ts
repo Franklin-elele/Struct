@@ -5,18 +5,17 @@ import bcrypt from "bcryptjs";
 import { isValidZone } from "@/lib/timezone";
 
 
+
 export async function POST(request: Request) {
   try {
     await connectDB();
     const cookieStore = await cookies();
 
     const { email,password,timezone } = await request.json();
-    if (!email || !password) {
-      return new Response(
-        JSON.stringify({ message: "Email and password are required" }),
-        { status: 400 },
-      );
-    }
+
+   if ([ email, password].some((v) => typeof v !== "string" || !v.trim())) {
+  return new Response(JSON.stringify({ message: "All fields are required" }), { status: 400 });
+}
 
     const user = await authSchema.findOne({ email }).select("+password");
     if (!user) {

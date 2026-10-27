@@ -1,9 +1,13 @@
+"use client";
+
 // StatsCard — Today's progress overview
-// Shows: circular progress ring, days left in 90-day cycle, done today, completion %
+// On first show the percentage and done-count count up from 0 and the ring fills.
+// When a task is ticked, they glide to the new value.
 // h-full ensures equal height with StructureCard when used side by side
 
 import { CalendarDays, CheckSquare, TrendingUp } from "lucide-react";
 import { Stats } from "../config/mockData";
+import { useCountUp } from "@/hooks/useCountUp";
 
 type StatsCardProps = {
   stats: Stats;
@@ -35,12 +39,16 @@ function StatCell({
 export default function StatsCard({ stats, daysRemaining = 90 }: StatsCardProps) {
   const { completedToday, totalToday, overallPercent } = stats;
 
+  // animated copies of the numbers
+  const percent = useCountUp(overallPercent);
+  const done = useCountUp(completedToday, 600);
+
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference - (overallPercent / 100) * circumference;
+  // the ring follows the animated percent, so it fills as the number climbs
+  const dashOffset = circumference - (percent / 100) * circumference;
 
   return (
-    // h-full stretches card to match sibling height in grid
     <div className="bg-white rounded-2xl border border-[#D2DCB6] mr-2
       shadow-[4px_4px_0px_0px_#d2dcb6] p-5 flex flex-col gap-5 h-full">
 
@@ -51,7 +59,7 @@ export default function StatsCard({ stats, daysRemaining = 90 }: StatsCardProps)
         <h3 className="text-base font-bold text-[#2d3328]">Overview</h3>
       </div>
 
-      {/* Circular progress ring — grows to fill available space */}
+      {/* Circular progress ring */}
       <div className="flex items-center justify-center flex-1">
         <div className="relative w-20 h-20">
           <svg viewBox="0 0 72 72" className="w-full h-full -rotate-90">
@@ -61,16 +69,15 @@ export default function StatsCard({ stats, daysRemaining = 90 }: StatsCardProps)
               fill="none" stroke="#A1BC98" strokeWidth="6" strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={dashOffset}
-              className="transition-all duration-700"
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-base font-bold text-[#2d3328]">{overallPercent}%</span>
+            <span className="text-base font-bold text-[#2d3328]">{percent}%</span>
           </div>
         </div>
       </div>
 
-      {/* Stat cells — pinned to bottom */}
+      {/* Stat cells */}
       <div className="flex items-start gap-2 pt-1 border-t border-[#F1F3E0]">
         <StatCell
           icon={<CalendarDays size={16} className="text-[#778873]" />}
@@ -80,13 +87,13 @@ export default function StatsCard({ stats, daysRemaining = 90 }: StatsCardProps)
         <div className="w-px self-stretch bg-[#F1F3E0]" />
         <StatCell
           icon={<CheckSquare size={16} className="text-[#A1BC98]" />}
-          value={`${completedToday}/${totalToday}`}
+          value={`${done}/${totalToday}`}
           label="Done today"
         />
         <div className="w-px self-stretch bg-[#F1F3E0]" />
         <StatCell
           icon={<TrendingUp size={16} className="text-[#778873]" />}
-          value={`${overallPercent}%`}
+          value={`${percent}%`}
           label="Completion"
         />
       </div>

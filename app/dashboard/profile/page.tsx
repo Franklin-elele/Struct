@@ -7,9 +7,10 @@ import { useState, useEffect, useCallback } from "react";
 import {
   LogOut, Layers, CheckSquare, CalendarDays, Moon, Lock, ArrowRight, UserX,
   type LucideIcon,
+  HistoryIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
+// import DashboardLayout from "@/app/components/Dashboard/DashboardLayout";
 import ToggleSwitch from "@/app/components/Dashboard/ToggleSwitch";
 import LogoutModal from "@/app/components/Dashboard/logoutModal";
 import Loader from "@/app/components/Loader";
@@ -181,6 +182,36 @@ function SettingsRow({
 }
 
 // ─────────────────────────────────────────────
+// ActivityCard
+// ─────────────────────────────────────────────
+function ActivityCard() {
+  const router = useRouter();
+  return (
+    <div className="lg:hidden bg-white rounded-2xl border border-[#D2DCB6]
+  shadow-[4px_4px_0px_0px_#d2dcb6] px-5">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#a1bc98] pt-4 pb-2">
+        Activity
+      </p>
+      <SettingsRow
+        icon={HistoryIcon}
+        label="History"
+        description="Look back at your past days"
+        right={
+          <button
+            onClick={() => router.push("/dashboard/history")}
+            className="flex items-center gap-1 text-xs font-semibold text-[#778873]
+              hover:text-[#2d3328] transition-colors duration-150"
+          >
+            View <ArrowRight size={12} />
+          </button>
+        }
+      />
+    </div>
+  );
+}
+
+
+// ─────────────────────────────────────────────
 // PreferencesCard
 // ─────────────────────────────────────────────
 function PreferencesCard() {
@@ -280,6 +311,7 @@ export default function ProfilePage() {
   const [structures, setStructures] = useState<ApiStructure[]>([]);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Separate try blocks so one failing call can't hide the others
   const load = useCallback(async () => {
@@ -302,6 +334,7 @@ export default function ProfilePage() {
     }
   }, []);
 
+
   useEffect(() => {
     load();
   }, [load]);
@@ -310,7 +343,7 @@ export default function ProfilePage() {
   const primary = active.find((s) => s.isCurrent) ?? active[0];
 
   return (
-    <DashboardLayout>
+    <>
       <div className="flex flex-col gap-5 max-w-lg mx-auto">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-[#2d3328]">Profile</h2>
@@ -349,6 +382,7 @@ export default function ProfilePage() {
               done={tasks.filter((t) => t.completed).length}
               total={tasks.length}
             />
+            <ActivityCard />
             <PreferencesCard />
             <AccountCard />
           </>
@@ -358,6 +392,6 @@ export default function ProfilePage() {
           Struct V1 · MVP
         </p>
       </div>
-    </DashboardLayout>
+    </>
   );
 }

@@ -15,6 +15,7 @@ export type SidebarLink = {
   label: string;
   href: string;
   icon: LucideIcon;
+  showOnMobile?: boolean;
 };
 
 export const sidebarLinks: SidebarLink[] = [
@@ -25,15 +26,15 @@ export const sidebarLinks: SidebarLink[] = [
 },
 
   { 
-    label: "Tasks",
-    href: "/dashboard/tasks",
-    icon: CheckSquare
-},
-
-  { 
     label: "Structure",
     href: "/dashboard/structure",
     icon: Layers
+},
+
+  { 
+    label: "Tasks",
+    href: "/dashboard/tasks",
+    icon: CheckSquare
 },
 
   { 
@@ -42,15 +43,16 @@ export const sidebarLinks: SidebarLink[] = [
     icon: BarChart2
 },
 
+{
+   label: "History",    
+   href: "/dashboard/history",      
+   icon: History,
+   showOnMobile: false,    
+   },
+
   {
     label: "Profile", 
     href: "/dashboard/profile",
     icon: User
 },
-
- {
-   label: "History",    
-   href: "/dashboard/history",      
-   icon: History        
-   },
 ];
